@@ -1,0 +1,16 @@
+.PainterButtonArray {
+    position: relative;
+}
+.result-info-text {
+    position: absolute;
+    top: 20%;
+    left: 23%;
+    width: 48%;
+    text-align: center;
+    padding: 2%;
+    background-color: white;
+    color: black;
+    border: 0.3rem solid black;
+  
+}
+

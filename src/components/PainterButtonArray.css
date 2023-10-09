@@ -1,0 +1,59 @@
+.PainterButtonArray {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.painter-option-button {
+    flex: 0 0 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.0rem;
+    margin-bottom: 0.4rem;
+}
+
+
+    .painter-option-button button {
+        background-color: var(--button-background-color) !important;
+        color: var(--button-text-color) !important;
+        border: 0.1rem solid black;
+        width: 90%;
+        height: auto;
+        max-height: 4.5vh;
+        font-size: 1rem;
+    }
+
+@media(hover: hover) {
+    .painter-option-button button:hover {
+        background-color: var(--button-background-color-hover) !important;
+    }
+}
+
+
+
+
+
+      
+
+
+ 
+
+
+
+
+.right-option {
+    pointer-events: none;
+}
+.wrong-option {
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.painter-button-fake {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+

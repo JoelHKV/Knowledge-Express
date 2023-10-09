@@ -1,0 +1,69 @@
+:root {
+    --background-color: #ecb;
+    --button-text-color: #000000;
+    --button-background-color: #ee7700;
+    --button-background-color-hover: #aa5500;
+}
+
+.appContainer {
+    display: flex;
+    justify-content: center;
+    user-select: none;
+    width: 100%;
+}
+
+.gridContainer {
+    user-select: none;
+    max-width: 660px;
+    background-color: var(--background-color);
+    grid-row-gap: 1vh;
+    border-radius: 10px;
+}
+
+.centerContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvas-container {
+    width: 60vw;
+    height: 60vh;
+    border: 4px solid red;
+    background-color: black;
+}
+
+
+
+.InstructionBlock, .PracticeBlock {
+    margin-left: 0vh;
+}
+
+.first-row {
+    height: 8vh;
+}
+
+.second-row {
+    height: 4vh;
+}
+
+
+.mainGameWindow {
+    position: relative;
+}
+
+.last-row {
+    display: flex;
+    align-items: flex-start;
+    height: 16vh;
+}
+
+
+html {
+    font-size: 20px; /* Set the root font size */
+}
+
+ 
+ 
+
+
