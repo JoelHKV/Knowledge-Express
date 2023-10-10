@@ -12,6 +12,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         standUpright,
         selectedOnce,
         selectedTwice,
+        immune,
         trainSpeed,
         trainToSignDistance,
         answerSign,
@@ -22,7 +23,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         let goDownSpeed = 0.01;
 
-        console.log('rerender' + distance, answerSign)
+       // console.log('rerender' + distance, answerSign)
 
         const [initialCameraPosition, setInitialCameraPosition] = useState(true);
 
@@ -40,13 +41,13 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 meshRef.current.position.x = width;
                 setInitialCameraPosition(false);
             }
-            if (!standUpright) {
+            if (!standUpright && !immune) {
                 if (meshRef.current && meshRef.current.rotation.x < Math.PI / 2) {
                     meshRef.current.rotation.x += goDownSpeed;
                     goDownSpeed = 1.05 * goDownSpeed;
                 }
             }
-            if (selectedTwice) {
+            if (selectedTwice && !immune) {
                 const timeNow = Date.now();
                 const deltaTime = timeNow - timeStamp;
                 meshRef.current.position.z -= 0.01 * trainToSignDistance;
@@ -56,7 +57,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
                 timeStamp = timeNow;
             }
-            if (answerSign) {
+            if (answerSign && !immune) {
                 const timeNow = Date.now();
                 const deltaTime = timeNow - timeStamp;
 
@@ -82,7 +83,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const handleSignClick = (e) => {
             console.log(distance);
             e.stopPropagation();
-            if (standUpright && !selectedTwice && !answerSign) {
+            if (standUpright && !selectedTwice && !answerSign && !immune) {
                 handleThreeComponentClick(distance, selectedOnce);
             }
         };
@@ -130,10 +131,10 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
     (prevProps, nextProps) => {
         // Compare props and return true if you want to skip re-render
         return (
-          //  prevProps.distance === nextProps.distance &&
-           // prevProps.width === nextProps.width 
-         //   prevProps.height === nextProps.height &&
-         //   prevProps.signText === nextProps.signText &&
+            prevProps.distance === nextProps.distance &&
+            prevProps.width === nextProps.width &&
+            prevProps.height === nextProps.height &&
+            prevProps.signText === nextProps.signText &&
             prevProps.standUpright === nextProps.standUpright &&
             prevProps.selectedOnce === nextProps.selectedOnce &&
             prevProps.selectedTwice === nextProps.selectedTwice  

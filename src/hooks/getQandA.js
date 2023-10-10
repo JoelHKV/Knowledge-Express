@@ -30,16 +30,16 @@ export const getQandA = (cloudFunctionURL, thisQuestion) => {
 
     const fetchMockData = () => {
         const questionAnswerDataDict = {}
-        questionAnswerDataDict['Question'] = generateRandomSentence(getRandomNumber(500, 600))
+        questionAnswerDataDict['Answer'] = generateRandomSentence(getRandomNumber(500, 600))
         for (let i = 1; i <= 6; i++) {
-            questionAnswerDataDict['Answer' + i.toString()] = generateRandomSentence(getRandomNumber(60, 200))
+            questionAnswerDataDict['Question' + i.toString()] = generateRandomSentence(getRandomNumber(60, 200))
         }
          
         setQuestionAnswerData(questionAnswerDataDict)
         setTimeout(() => {
             
             setLoaded(true)
-        }, 5000);
+        }, 1000);
 
 
 

@@ -1,0 +1,65 @@
+.TrainControlBlock {
+    position: absolute;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border: 6px solid black;
+    height: 20%;
+    width: 60%;
+    top: 80%;
+    background-color: #999;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+    /* Set border-bottom-left-radius and border-bottom-right-radius to 0 to keep the bottom corners square */
+     
+}
+
+
+.TrainControlBlockSpeedSlider {
+    position: absolute;
+    top: 20%;
+    left: 0;
+    height: 60%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.TrainControlBlockWorldQuestionButton,
+.TrainControlBlockLifeQuestionButton,
+.TrainControlBlockMyQuestionButton,
+.TrainControlBlockInstructionsButton {
+    position: absolute !important;
+    height: 4rem !important;
+    width: 4rem !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    border: 5px solid black !important;
+    font-size: 1.5rem !important;
+}
+.TrainControlBlockWorldQuestionButton {
+    top: 40%; /* Adjust the top position for each button */
+    left: 70% !important;
+}
+
+.TrainControlBlockLifeQuestionButton {
+    top: 60%;
+    left: 90% !important;
+}
+
+.TrainControlBlockMyQuestionButton {
+    top: 40%;
+    left: 30% !important;
+}
+
+.TrainControlBlockInstructionsButton {
+    top: 60%;
+    left: 10% !important;
+}
+
+
+
+
+
+ 
