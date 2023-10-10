@@ -29,8 +29,9 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
 
-const TrainControlBlock = ({  upDateUseRefs, distanceRef, setSceneItems }) => {
-    const [thisSpeed, setThisSpeed] = useState(1);
+const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, speed }) => {
+    console.log(speed)
+    const [thisSpeed, setThisSpeed] = useState(speed);
 
 
     useEffect(() => {

@@ -7,7 +7,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         distance,
         width,
         height,
-        handleThreeComponentClick,
+        handleSceneElementClick,
         signText,
         standUpright,
         selectedOnce,
@@ -84,7 +84,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             console.log(distance);
             e.stopPropagation();
             if (standUpright && !selectedTwice && !immune) {
-                handleThreeComponentClick(distance, selectedOnce);
+                handleSceneElementClick(distance, selectedOnce);
             }
         };
 

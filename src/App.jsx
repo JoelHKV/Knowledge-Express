@@ -6,13 +6,10 @@ import { Canvas, useFrame } from '@react-three/fiber';
 
 import { PerspectiveCamera, OrbitControls, Stars } from '@react-three/drei';
 
-//import { Text } from 'drei';
 
 import * as THREE from 'three';
 
  
-//import { Mesh } from 'three';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { newGameMode } from './reducers/knowledgeExpressSlice';
 
@@ -30,14 +27,6 @@ import TrainControlBlock from './components/TrainControlBlock';
 
 import THREESignBlock from './components/THREESignBlock';
 import THREESignBlockCustomRerender from './components/THREESignBlockCustomRerender';
- 
-
-import { questions } from './utilities/exampleQuestions';
-
-
-
-const { worldQuestions, lifeQuestions } = questions();
- 
  
 import { addWhatToDict, composeDict } from './utilities/generateSignsPerButtonClick';
  
@@ -57,82 +46,55 @@ const App = () => {
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
- 
-
-
-
-   
-    
-     
-  
     const [sceneItems, setSceneItems] = useState();
-
-    const [gameState, setGameState] = useState('stroll');
-
-    
+    const [gameState, setGameState] = useState('stroll'); 
     const [thisQuestion, setThisQuestion] = useState(null);
 
 
     const distanceBeforeFlipping = 3;
     const distanceBeforeStopping = 5;
 
-    const renderingHorizon = 40;
+    const renderingHorizon = 40; // distance of rending along the future path
 
-
-
-    const distanceRef = useRef(0);
-    const speedRef = useRef(1);
-    const stopAt = useRef(Infinity);
-    const nextAt = useRef();
-    const finalSignAt = useRef();
+    const distanceRef = useRef(0); // distance travelled
+    const speedRef = useRef(1); // speed
+    const stopAt = useRef(Infinity); // sign at distance that forces us to stop
+    const nextAt = useRef(); // distance for the next sign to go down
+    const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
      
-    const isFirstTriggerRef = useRef(true);
+    const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
     
-    
-    
-
-
-     
-
     const { questionAnswerData, loaded, error } = getQandA('ff', thisQuestion);
     console.log('app rerender loaded', loaded)
     if (loaded && gameState === 'questionSelected') {
         console.log('addAnswer')
-        setGameState('requestCompleted')
+        setGameState('showAnswerSign')
         const newSceneItems = { };
         newSceneItems[parseInt(distanceRef.current) + 7] = addWhatToDict('Answer', questionAnswerData['Answer'])                      
         setSceneItems(newSceneItems)
     }
 
-     
-
     const upDateUseRefs = (firstItemAt, lastItemAt) => {             
             nextAt.current = firstItemAt             
             finalSignAt.current = lastItemAt      
     }
-
-     
-
-
-
-
-    const handleCanvasClick = (passedGameState) => {  
-        console.log('canvas ' + gameState, passedGameState)
+  
+    const handleCanvasClick = () => {  // clicking empty part of canvas unselects
         if (gameState === 'stroll')   {
             setTimeout(() => {
-                handleThreeComponentClick(-1, false)
+                handleSceneElementClick(-1, false) // delay to take scene element hit first
             }, 10);
         } 
       
 
     }
 
-    const handleThreeComponentClick = (whichSign, selectedOnce) => {
-        if (isFirstTriggerRef.current) {
+    const handleSceneElementClick = (whichSign, selectedOnce) => {
+        if (isFirstTriggerRef.current) { // we take the first trigger i.e. the closest element we hit
 
-            if (gameState === 'requestCompleted') {
-                showFollowUpQuestions()
+            if (gameState === 'showAnswerSign') { // we have clicked the answer 
+                showFollowUpQuestions() // and want to see the follow up questions
                 return
             } 
 
@@ -148,30 +110,27 @@ const App = () => {
     const showFollowUpQuestions = () => {
         setGameState('stroll')
         stopAt.current = Infinity
-        console.log('set to stoll', gameState)
         const [newSceneItems, firstItemAt, lastItemAt] = composeDict('QuestionDict', questionAnswerData, 2, 5, distanceRef.current)
         upDateUseRefs(firstItemAt, lastItemAt)
-        console.log(speedRef, stopAt, distanceRef)
         setSceneItems(newSceneItems)
     }
 
 
     const updateSceneItems = (whichSign, selectedOnce) => {
         const keySignDistance = parseInt(whichSign)
-        if (!selectedOnce) { 
+        if (!selectedOnce) { // we click question for the first time
 
             stopAt.current = whichSign - distanceBeforeStopping
 
             const newSceneItems = { ...sceneItems };
             for (const key in newSceneItems) {
                 const keyIsSign = key === whichSign
-                newSceneItems[key]['selectedOnce'] = keyIsSign
+                newSceneItems[key]['selectedOnce'] = keyIsSign //we paint it red 
             }
             setSceneItems(newSceneItems)
         }
         else{
-            console.log('conformed')
-            setGameState('questionSelected');
+            setGameState('questionSelected'); // we have reclicked a question and proceed to get the answer
             setThisQuestion(sceneItems[whichSign]['signText'])
 
             const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 20, 5, keySignDistance-4)                  
@@ -214,12 +173,17 @@ const App = () => {
                     nextAt.current += 10
                     flipSignFindNextSign(nextAt.current - 10)
                     
-                }                                              
+                }   
+                if (distanceRef.current > stopAt.current) {
+                    console.log('stop')
+                    speedRef.current =0
+                }
+
                 distanceRef.current += speedRef.current * deltaTime / 1000
                 camera.position.z = distanceRef.current             
             }
 
-            if (gameState === 'requestCompleted' || gameState === 'questionSelected') {
+            if (gameState === 'showAnswerSign' || gameState === 'questionSelected') {
                 distanceRef.current += speedRef.current * deltaTime / 1000
                 camera.position.z = distanceRef.current 
             }
@@ -236,7 +200,7 @@ const App = () => {
                  
             
             <div className="canvas-container" >
-                <Canvas camera={camera} gl={{ antialias: true }} onClick={() => handleCanvasClick(gameState)}>                    
+                <Canvas camera={camera} gl={{ antialias: true }} onClick={() => handleCanvasClick()}>                    
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[0, 10, 0]} intensity={0.5}/>
                     <Stars />                                   
@@ -259,7 +223,7 @@ const App = () => {
                                         immune={value.immune}
                                         trainSpeed={speedRef.current}
                                         trainToSignDistance={stopAt.current - distanceRef.current}
-                                        handleThreeComponentClick={handleThreeComponentClick}
+                                    handleSceneElementClick={handleSceneElementClick}
                                     />)
                             ))} 
 
@@ -279,6 +243,7 @@ const App = () => {
                     upDateUseRefs={upDateUseRefs}
                     distanceRef={distanceRef}
                     setSceneItems={setSceneItems}
+                    speed={speedRef.current}
                         />
 
                     </div>
