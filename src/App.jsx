@@ -49,8 +49,9 @@ const App = () => {
     const [sceneItems, setSceneItems] = useState();
     const [gameState, setGameState] = useState('stroll'); 
     const [thisQuestion, setThisQuestion] = useState(null);
-
-
+    
+    const [trainSpeed, setTrainSpeed] = useState(1);
+    const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
     const distanceBeforeFlipping = 3;
     const distanceBeforeStopping = 5;
 
@@ -64,7 +65,7 @@ const App = () => {
      
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
-    
+    console.log(stopAt.current)
     const { questionAnswerData, loaded, error } = getQandA('ff', thisQuestion);
     console.log('app rerender loaded', loaded)
     if (loaded && gameState === 'questionSelected') {
@@ -86,9 +87,25 @@ const App = () => {
                 handleSceneElementClick(-1, false) // delay to take scene element hit first
             }, 10);
         } 
-      
+                      
+            backToMotionAfterForcedStop()             
+        
+
+
 
     }
+
+    const backToMotionAfterForcedStop = () => {
+        if (gameState === 'forceStop') { 
+            console.log(gameState)
+            const stopSignPosition = stopAt.current + distanceBeforeStopping
+            stopAt.current = Infinity
+            flipSignFindNextSign(stopSignPosition)
+            setTrainSpeed(oldTrainSpeed)
+            setGameState('stroll')
+        } 
+    }
+
 
     const handleSceneElementClick = (whichSign, selectedOnce) => {
         if (isFirstTriggerRef.current) { // we take the first trigger i.e. the closest element we hit
@@ -108,8 +125,11 @@ const App = () => {
     };
 
     const showFollowUpQuestions = () => {
+        stopAt.current = distanceRef.current 
+        console.log('showFollowUpQuestions', stopAt.current)
         setGameState('stroll')
-        stopAt.current = Infinity
+      //  stopAt.current = Infinity
+         
         const [newSceneItems, firstItemAt, lastItemAt] = composeDict('QuestionDict', questionAnswerData, 2, 5, distanceRef.current)
         upDateUseRefs(firstItemAt, lastItemAt)
         setSceneItems(newSceneItems)
@@ -132,7 +152,7 @@ const App = () => {
         else{
             setGameState('questionSelected'); // we have reclicked a question and proceed to get the answer
             setThisQuestion(sceneItems[whichSign]['signText'])
-
+            
             const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 20, 5, keySignDistance-4)                  
             upDateUseRefs(Infinity, Infinity)
            
@@ -145,6 +165,7 @@ const App = () => {
     }
    
     const flipSignFindNextSign = (signAt) => {
+        console.log('flipSignFindNextSign')
         const newSceneItems = { ...sceneItems };
         if (newSceneItems[signAt]) {
             newSceneItems[signAt]['standUpright'] = false // this one goes down now
@@ -167,24 +188,29 @@ const App = () => {
         useFrame(() => {
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
-
+            console.log(stopAt.current)
             if (gameState === 'stroll' && distanceRef.current < finalSignAt.current - distanceBeforeFlipping-1) {
                 if (distanceRef.current > nextAt.current - distanceBeforeFlipping) {
                     nextAt.current += 10
                     flipSignFindNextSign(nextAt.current - 10)
                     
                 }   
-                if (distanceRef.current > stopAt.current) {
-                    console.log('stop')
-                    speedRef.current =0
+
+                
+
+                if (distanceRef.current > stopAt.current && distanceRef.current > distanceBeforeStopping) {
+                    console.log('stop', stopAt.current)
+                    setOldTrainSpeed(trainSpeed)
+                    setTrainSpeed(0)
+                    setGameState('forceStop')
                 }
 
-                distanceRef.current += speedRef.current * deltaTime / 1000
+                distanceRef.current += trainSpeed * deltaTime / 1000
                 camera.position.z = distanceRef.current             
             }
 
             if (gameState === 'showAnswerSign' || gameState === 'questionSelected') {
-                distanceRef.current += speedRef.current * deltaTime / 1000
+                distanceRef.current += trainSpeed * deltaTime / 1000
                 camera.position.z = distanceRef.current 
             }
          
@@ -221,9 +247,9 @@ const App = () => {
                                         selectedTwice={value.selectedTwice}
                                         answerSign={value.answerSign}
                                         immune={value.immune}
-                                        trainSpeed={speedRef.current}
+                                        trainSpeed={trainSpeed}
                                         trainToSignDistance={stopAt.current - distanceRef.current}
-                                    handleSceneElementClick={handleSceneElementClick}
+                                        handleSceneElementClick={handleSceneElementClick}
                                     />)
                             ))} 
 
@@ -243,7 +269,9 @@ const App = () => {
                     upDateUseRefs={upDateUseRefs}
                     distanceRef={distanceRef}
                     setSceneItems={setSceneItems}
-                    speed={speedRef.current}
+                    setTrainSpeed={setTrainSpeed}
+                    trainSpeed={trainSpeed}
+                    backToMotionAfterForcedStop={backToMotionAfterForcedStop}
                         />
 
                     </div>

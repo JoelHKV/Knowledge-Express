@@ -29,10 +29,10 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
 
-const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, speed }) => {
-    console.log(speed)
-    const [thisSpeed, setThisSpeed] = useState(speed);
-
+const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpeed, setTrainSpeed, backToMotionAfterForcedStop }) => {
+    console.log(trainSpeed)
+    //const [thisSpeed, setThisSpeed] = useState(speed);
+     
 
     useEffect(() => {
 
@@ -43,11 +43,13 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, speed })
 
 
     const handleSliderChange = (event, newValue) => {
-        setThisSpeed(newValue);       
-        upDateUseRefs('speedRef', newValue)   
+        backToMotionAfterForcedStop()
+        //setThisSpeed(newValue);    
+        setTrainSpeed(newValue)
+        //upDateUseRefs('speedRef', newValue)   
 
-        const distanceValue = distanceRef.current;
-        console.log("Distance Value:", distanceValue);
+        //const distanceValue = distanceRef.current;
+       // console.log("Distance Value:", distanceValue);
     };
 
 
@@ -86,7 +88,7 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, speed })
             <div>
                 <div className="TrainControlBlockSpeedSlider">
                     <CustomSlider
-                        value={thisSpeed}
+                        value={trainSpeed}
                         onChange={handleSliderChange}
                         orientation="vertical"
                         min={0}
