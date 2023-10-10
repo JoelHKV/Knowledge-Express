@@ -53,8 +53,9 @@ const TrainControlBlock = ({  upDateUseRefs, distanceRef, setSceneItems }) => {
     const handleControlBoardClick = (questionMode) => {
         const distanceValue = distanceRef.current;
         const [tempDict, firstItemAt, lastItemAt] = composeDict(questionMode, null, 2, 5, distanceValue)
-        upDateUseRefs('nextAtRef', firstItemAt) 
-        upDateUseRefs('finalSignAt', lastItemAt)
+
+        upDateUseRefs(firstItemAt, lastItemAt)
+
         setSceneItems(tempDict)
     };
 

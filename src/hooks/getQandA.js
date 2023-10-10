@@ -1,13 +1,17 @@
 import axios from 'axios';
-import { useState, useEffect} from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 
 
 export const getQandA = (cloudFunctionURL, thisQuestion) => {
     const [questionAnswerData, setQuestionAnswerData] = useState({});
  
-    const [loaded, setLoaded] = useState(false);  
+   // const [loaded, setLoaded] = useState(false);  
     const [error, setError] = useState(null);
+
+
+    const loadedRef = useRef(false);
+
 
     const fetchData = () => { 
         
@@ -35,11 +39,17 @@ export const getQandA = (cloudFunctionURL, thisQuestion) => {
             questionAnswerDataDict['Question' + i.toString()] = generateRandomSentence(getRandomNumber(60, 200))
         }
          
-        setQuestionAnswerData(questionAnswerDataDict)
+        
         setTimeout(() => {
-            
-            setLoaded(true)
-        }, 1000);
+            loadedRef.current = true
+            setQuestionAnswerData(questionAnswerDataDict) 
+           // setLoaded(true)
+        }, 4400);
+        setTimeout(() => {
+            loadedRef.current = false
+             
+            // setLoaded(true)
+        }, 6400);
 
 
 
@@ -81,12 +91,14 @@ export const getQandA = (cloudFunctionURL, thisQuestion) => {
 
     useEffect(() => {
         if (thisQuestion) {
+           // setLoaded(false)
+            loadedRef.current = false
             //fetchData()
             fetchMockData()
-            console.log('fetch mock data')
+            console.log('fetch mock data', thisQuestion)
         }
     }, [thisQuestion])
-
+    const loaded = loadedRef.current
     return { questionAnswerData, loaded, error }
 
 };

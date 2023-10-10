@@ -88,40 +88,28 @@ const App = () => {
      
     const isFirstTriggerRef = useRef(true);
     
-     
-
-    console.log('app rerender')
-     
+    
+    
+    
 
 
      
 
     const { questionAnswerData, loaded, error } = getQandA('ff', thisQuestion);
-
+    console.log('app rerender loaded', loaded)
     if (loaded && gameState === 'questionSelected') {
+        console.log('addAnswer')
         setGameState('requestCompleted')
         const newSceneItems = { };
         newSceneItems[parseInt(distanceRef.current) + 7] = addWhatToDict('Answer', questionAnswerData['Answer'])                      
         setSceneItems(newSceneItems)
     }
 
-  
+     
 
-
-    const upDateUseRefs = (refName, value) => {
-        if (refName === 'speedRef') {
-            speedRef.current = value
-        }
-        if (refName === 'nextAtRef') {
-            nextAt.current = value
-        }
-        if (refName === 'finalSignAt') {
-            finalSignAt.current = value
-        }
-
-
-        
-
+    const upDateUseRefs = (firstItemAt, lastItemAt) => {             
+            nextAt.current = firstItemAt             
+            finalSignAt.current = lastItemAt      
     }
 
      
@@ -129,35 +117,25 @@ const App = () => {
 
 
 
-    const handleCanvasClick = () => {  
-        console.log('canvas ' + gameState)
+    const handleCanvasClick = (passedGameState) => {  
+        console.log('canvas ' + gameState, passedGameState)
         if (gameState === 'stroll')   {
             setTimeout(() => {
                 handleThreeComponentClick(-1, false)
             }, 10);
         } 
-        if (gameState === 'requestCompleted') {
-            setGameState('stroll')
-            stopAt.current = Infinity
-
-            const [newSceneItems, firstItemAt, lastItemAt] = composeDict('QuestionDict', questionAnswerData, 2, 5, distanceRef.current)
-
-            nextAt.current = firstItemAt
-            finalSignAt.current = lastItemAt
-
-            setSceneItems(newSceneItems)
-        } 
-
-
-
-
-
+      
 
     }
 
     const handleThreeComponentClick = (whichSign, selectedOnce) => {
-     
         if (isFirstTriggerRef.current) {
+
+            if (gameState === 'requestCompleted') {
+                showFollowUpQuestions()
+                return
+            } 
+
             updateSceneItems(whichSign, selectedOnce)                     
         }
         isFirstTriggerRef.current = false;
@@ -166,6 +144,17 @@ const App = () => {
         }, 100);
          
     };
+
+    const showFollowUpQuestions = () => {
+        setGameState('stroll')
+        stopAt.current = Infinity
+        console.log('set to stoll', gameState)
+        const [newSceneItems, firstItemAt, lastItemAt] = composeDict('QuestionDict', questionAnswerData, 2, 5, distanceRef.current)
+        upDateUseRefs(firstItemAt, lastItemAt)
+        console.log(speedRef, stopAt, distanceRef)
+        setSceneItems(newSceneItems)
+    }
+
 
     const updateSceneItems = (whichSign, selectedOnce) => {
         const keySignDistance = parseInt(whichSign)
@@ -181,11 +170,13 @@ const App = () => {
             setSceneItems(newSceneItems)
         }
         else{
-
+            console.log('conformed')
             setGameState('questionSelected');
             setThisQuestion(sceneItems[whichSign]['signText'])
 
             const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 20, 5, keySignDistance-4)                  
+            upDateUseRefs(Infinity, Infinity)
+           
             const keySceneItem = { [whichSign]: sceneItems[keySignDistance] };
             keySceneItem[whichSign]['selectedTwice'] = true          
             const newSceneItems = Object.assign({}, keySceneItem, waitingSignDict);
@@ -215,7 +206,6 @@ const App = () => {
         let timeStamp = Date.now()
       
         useFrame(() => {
-            //console.log(camera.position.z)
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
 
@@ -223,48 +213,30 @@ const App = () => {
                 if (distanceRef.current > nextAt.current - distanceBeforeFlipping) {
                     nextAt.current += 10
                     flipSignFindNextSign(nextAt.current - 10)
-                    //setGameState('confirm?')
-                }
-
-
-                if (distanceRef.current < stopAt.current) {
-                    distanceRef.current += speedRef.current * deltaTime / 1000
-                    camera.position.z = distanceRef.current
-                }
+                    
+                }                                              
+                distanceRef.current += speedRef.current * deltaTime / 1000
+                camera.position.z = distanceRef.current             
             }
-            if (gameState === 'questionSelected') {
 
-                    distanceRef.current += speedRef.current * deltaTime / 1000
-                    camera.position.z = distanceRef.current               
-            }
-            if (gameState === 'requestCompleted') {
+            if (gameState === 'requestCompleted' || gameState === 'questionSelected') {
                 distanceRef.current += speedRef.current * deltaTime / 1000
                 camera.position.z = distanceRef.current 
             }
-
-
-            
-
-
-
+         
             timeStamp = timeNow
         });
 
         return null;  
     };
-
-
-     
     
-     
- 
     return (      
         <Box className="appContainer">   
              
                  
             
             <div className="canvas-container" >
-                    <Canvas camera={camera} gl={{ antialias: true }} onClick={handleCanvasClick}>                    
+                <Canvas camera={camera} gl={{ antialias: true }} onClick={() => handleCanvasClick(gameState)}>                    
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[0, 10, 0]} intensity={0.5}/>
                     <Stars />                                   
@@ -310,16 +282,7 @@ const App = () => {
                         />
 
                     </div>
-
-                    
-                   
-             
-                    
-
-
-             
-            
-        
+                      
         </Box>                      
     );
 };
