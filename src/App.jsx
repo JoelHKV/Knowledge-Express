@@ -58,21 +58,27 @@ const App = () => {
     const renderingHorizon = 40; // distance of rending along the future path
 
     const distanceRef = useRef(0); // distance travelled
-    const speedRef = useRef(1); // speed
+    //const speedRef = useRef(1); // speed
     const stopAt = useRef(Infinity); // sign at distance that forces us to stop
     const nextAt = useRef(); // distance for the next sign to go down
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
      
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
-    console.log(stopAt.current)
-    const { questionAnswerData, loaded, error } = getQandA('ff', thisQuestion);
-    console.log('app rerender loaded', loaded)
+     
+
+    const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
+
+    const testQuestion = 'What is the impact of colonialism and imperialism on the world today?'
+
+    const { questionAnswerData, loaded, error } = getQandA(cloudFunctionURL, thisQuestion); // thisQuestion
+
+    
     if (loaded && gameState === 'questionSelected') {
         console.log('addAnswer')
         setGameState('showAnswerSign')
         const newSceneItems = { };
-        newSceneItems[parseInt(distanceRef.current) + 7] = addWhatToDict('Answer', questionAnswerData['Answer'])                      
+        newSceneItems[parseInt(distanceRef.current) + 7] = addWhatToDict('Answer', questionAnswerData['answer'])                      
         setSceneItems(newSceneItems)
     }
 
@@ -97,7 +103,7 @@ const App = () => {
 
     const backToMotionAfterForcedStop = () => {
         if (gameState === 'forceStop') { 
-            console.log(gameState)
+            console.log('stopAt.current')
             const stopSignPosition = stopAt.current + distanceBeforeStopping
             stopAt.current = Infinity
             flipSignFindNextSign(stopSignPosition)
@@ -126,27 +132,26 @@ const App = () => {
 
     const showFollowUpQuestions = () => {
         stopAt.current = distanceRef.current 
-        console.log('showFollowUpQuestions', stopAt.current)
         setGameState('stroll')
-      //  stopAt.current = Infinity
-         
+        stopAt.current = Infinity      
         const [newSceneItems, firstItemAt, lastItemAt] = composeDict('QuestionDict', questionAnswerData, 2, 5, distanceRef.current)
         upDateUseRefs(firstItemAt, lastItemAt)
         setSceneItems(newSceneItems)
     }
 
-
     const updateSceneItems = (whichSign, selectedOnce) => {
         const keySignDistance = parseInt(whichSign)
-        if (!selectedOnce) { // we click question for the first time
-
-            stopAt.current = whichSign - distanceBeforeStopping
-
+        if (!selectedOnce) { // we click this question for the first time
             const newSceneItems = { ...sceneItems };
             for (const key in newSceneItems) {
                 const keyIsSign = key === whichSign
-                newSceneItems[key]['selectedOnce'] = keyIsSign //we paint it red 
+                newSceneItems[key]['selectedOnce'] = false // remove a potential prev selection 
             }
+            if (keySignDistance !== -1) { // clicked an actual item and not just canvas
+                newSceneItems[whichSign]['selectedOnce'] = true
+                stopAt.current = whichSign - distanceBeforeStopping
+            }
+             
             setSceneItems(newSceneItems)
         }
         else{
@@ -165,7 +170,7 @@ const App = () => {
     }
    
     const flipSignFindNextSign = (signAt) => {
-        console.log('flipSignFindNextSign')
+        
         const newSceneItems = { ...sceneItems };
         if (newSceneItems[signAt]) {
             newSceneItems[signAt]['standUpright'] = false // this one goes down now
@@ -175,45 +180,37 @@ const App = () => {
         const keysArray = Object.keys(sceneItems);        
         const indexOfKey = keysArray.indexOf(signAt.toString());
         nextAt.current = parseInt(keysArray[indexOfKey + 1]) // here the next one goes down
-         
+        console.log('flipSignFindNextSign', nextAt.current-distanceRef.current) 
     }
   
     const LocomotionAnimation = () => {
         
         camera.position.set(0, 2, distanceRef.current);
-        camera.lookAt(0, 2, distanceRef.current + 1);
-   
+        camera.lookAt(0, 2, distanceRef.current + 1);  
         let timeStamp = Date.now()
       
         useFrame(() => {
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
-            console.log(stopAt.current)
+            //console.log(stopAt.current)
             if (gameState === 'stroll' && distanceRef.current < finalSignAt.current - distanceBeforeFlipping-1) {
                 if (distanceRef.current > nextAt.current - distanceBeforeFlipping) {
                     nextAt.current += 10
-                    flipSignFindNextSign(nextAt.current - 10)
-                    
-                }   
-
-                
-
+                    flipSignFindNextSign(nextAt.current - 10)                   
+                }                  
                 if (distanceRef.current > stopAt.current && distanceRef.current > distanceBeforeStopping) {
                     console.log('stop', stopAt.current)
                     setOldTrainSpeed(trainSpeed)
                     setTrainSpeed(0)
                     setGameState('forceStop')
                 }
-
                 distanceRef.current += trainSpeed * deltaTime / 1000
                 camera.position.z = distanceRef.current             
             }
-
             if (gameState === 'showAnswerSign' || gameState === 'questionSelected') {
                 distanceRef.current += trainSpeed * deltaTime / 1000
                 camera.position.z = distanceRef.current 
-            }
-         
+            }        
             timeStamp = timeNow
         });
 
@@ -246,9 +243,8 @@ const App = () => {
                                         selectedOnce={value.selectedOnce}
                                         selectedTwice={value.selectedTwice}
                                         answerSign={value.answerSign}
-                                        immune={value.immune}
-                                        trainSpeed={trainSpeed}
-                                        trainToSignDistance={stopAt.current - distanceRef.current}
+                                        immune={value.immune}                                    
+                                        distanceRef={distanceRef}                                        
                                         handleSceneElementClick={handleSceneElementClick}
                                     />)
                             ))} 

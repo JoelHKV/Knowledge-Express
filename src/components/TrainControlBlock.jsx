@@ -30,7 +30,7 @@ const CustomSlider = styled(Slider)(({ value }) => ({
  
 
 const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpeed, setTrainSpeed, backToMotionAfterForcedStop }) => {
-    console.log(trainSpeed)
+     
     //const [thisSpeed, setThisSpeed] = useState(speed);
      
 
@@ -55,7 +55,7 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
 
     const handleControlBoardClick = (questionMode) => {
         const distanceValue = distanceRef.current;
-        const [tempDict, firstItemAt, lastItemAt] = composeDict(questionMode, null, 2, 5, distanceValue)
+        const [tempDict, firstItemAt, lastItemAt] = composeDict(questionMode, null, 20, 5, distanceValue)
 
         upDateUseRefs(firstItemAt, lastItemAt)
 

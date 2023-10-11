@@ -12,9 +12,8 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         standUpright,
         selectedOnce,
         selectedTwice,
-        immune,
-        trainSpeed,
-        trainToSignDistance,
+        immune,   
+        distanceRef,
         answerSign,
     }) => {
         const textLen = signText.length;
@@ -23,23 +22,20 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         let goDownSpeed = 0.01;
 
-       // console.log('rerender' + distance, answerSign)
-
-        const [initialCameraPosition, setInitialCameraPosition] = useState(true);
-
         const distanceNumber = parseFloat(distance);
-
+        const trainToSignGap = distance - distanceRef.current
+        const initRef = useRef(true);
         const meshRef = useRef();
-        let answerSignOffset = 16
-        const zPosition = answerSign ? answerSignOffset + distanceNumber : distanceNumber;
-
-        let timeStamp = Date.now();
+        let answerSignStart = 50
+        const answerSignEnd = 6
+        const zPosition = answerSign ? answerSignStart + distanceNumber : distanceNumber;
+        
 
         useFrame(() => {
-            if (initialCameraPosition) {
+            if (initRef.current) {
                 meshRef.current.position.z = zPosition;
                 meshRef.current.position.x = width;
-                setInitialCameraPosition(false);
+                initRef.current = false
             }
             if (!standUpright && !immune) {
                 if (meshRef.current && meshRef.current.rotation.x < Math.PI / 2) {
@@ -49,27 +45,17 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             }
             if (selectedTwice && !immune) {
                 const timeNow = Date.now();
-                const deltaTime = timeNow - timeStamp;
-                meshRef.current.position.z -= 0.01 * trainToSignDistance;
-                trainToSignDistance = 0.99 * trainToSignDistance;
-
-                meshRef.current.position.z += (trainSpeed * deltaTime) / 1000;
+                meshRef.current.position.z = trainToSignGap + distanceRef.current
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
-                timeStamp = timeNow;
+               
             }
-            if (answerSign && !immune) {
-                const timeNow = Date.now();
-                const deltaTime = timeNow - timeStamp;
-
-   
-                let dist = (trainSpeed * deltaTime) / 1000 - 0.03 * answerSignOffset
-                answerSignOffset = answerSignOffset * 0.97
-                meshRef.current.position.z += dist;
-                timeStamp = timeNow;
+            if (answerSign && !immune) {                      
+                answerSignStart = 0.96 * answerSignStart
+                let dist = answerSignStart + answerSignEnd
+                meshRef.current.position.z = distanceRef.current + dist
+                meshRef.current.position.x = 0.985 * meshRef.current.position.x
+                
             }
-
-
-
         });
 
         const signPosition = [0, height + signHeight / 2, 0];
@@ -79,7 +65,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         let signBorderColor = selectedOnce ? 'red' : 'green';
         signBorderColor = selectedTwice ? 'white' : signBorderColor;
-        signBorderColor = answerSign ? 'yellow' : signBorderColor;
+        signBorderColor = answerSign ? 'white' : signBorderColor;
         const handleSignClick = (e) => {
             console.log(distance);
             e.stopPropagation();
@@ -137,9 +123,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             prevProps.signText === nextProps.signText &&
             prevProps.standUpright === nextProps.standUpright &&
             prevProps.selectedOnce === nextProps.selectedOnce &&
-            prevProps.selectedTwice === nextProps.selectedTwice  
-          //  prevProps.trainSpeed === nextProps.trainSpeed
-            // Exclude trainToSignDistance from the comparison
+            prevProps.selectedTwice === nextProps.selectedTwice   
         );
     }
 );

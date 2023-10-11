@@ -14,7 +14,7 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
     if (signType === 'QuestionDict') {
         let i = 0; 
         for (const key in textContent) {
-            if (key.startsWith("Question")) {
+            if (key.startsWith("q")) {
                 const positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
                 textContent[key]
                 tempDict[positionCounter] = addWhatToDict('NewQuestion', textContent[key], i)

@@ -1,5 +1,5 @@
-# Gallery Galore
-[Gallery Galore is deployed to GitHub](https://JoelHKV.github.io/GalleryGalore/)
+# Knowledge Express
+[Knowledge Express is deployed to GitHub](https://JoelHKV.github.io/GalleryGalore/)
 
 ## General Information
 Gallery Galore is an exploratory app for examining the possibilities of AI for learning. In particular, it is a collection of AI-generated paintings that help users associate famous painters with their distinct painting styles.
@@ -38,6 +38,12 @@ The app contains of the following code files:
 Gallery Galore is written in JavaScript (React + Redux), HTML, and CSS. 
 
 ## Testing
+
+
+## Data
+
+ChatGPT bad a counting, give some slack
+not consistne formating, have to process carefully
 
 ## Painting Data
 The 10 most famous painters are first selected using ChatGPT. Then, ChatGPT is asked to generate the 20 most prototypical titles across those painters. Finally, a Python script is used to instruct Dall-E to draw the paintings. The painting images are currently saved in Google Cloud Storage and accessed directly.
