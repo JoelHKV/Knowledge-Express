@@ -62,10 +62,13 @@ const App = () => {
     const stopAt = useRef(Infinity); // sign at distance that forces us to stop
     const nextAt = useRef(); // distance for the next sign to go down
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
+
+    const forceStopFlag = useRef(0);
+    const activeSignIDRef = useRef()
      
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
-     
+    console.log(nextAt.current)
 
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
 
@@ -73,6 +76,7 @@ const App = () => {
 
     const { questionAnswerData, loaded, error } = getQandA(cloudFunctionURL, thisQuestion); // thisQuestion
 
+    console.log(gameState, loaded)
     
     if (loaded && gameState === 'questionSelected') {
         console.log('addAnswer')
@@ -82,40 +86,79 @@ const App = () => {
         setSceneItems(newSceneItems)
     }
 
-    const upDateUseRefs = (firstItemAt, lastItemAt) => {             
+    const upDateUseRefs = (firstItemAt, lastItemAt) => {
+        console.log('updrefs')
             nextAt.current = firstItemAt             
             finalSignAt.current = lastItemAt      
     }
   
     const handleCanvasClick = () => {  // clicking empty part of canvas unselects
+        
         if (gameState === 'stroll')   {
-            setTimeout(() => {
-                handleSceneElementClick(-1, false) // delay to take scene element hit first
-            }, 10);
+             
+                backToMotionAfterForcedStop()
+             
         } 
-                      
-            backToMotionAfterForcedStop()             
+        if (gameState === 'showAnswerSign') {
+            showFollowUpQuestions()
+            console.log('gg')
+
+        } 
+
+           // backToMotionAfterForcedStop()             
         
 
 
 
     }
 
-    const backToMotionAfterForcedStop = () => {
-        if (gameState === 'forceStop') { 
-            console.log('stopAt.current')
-            const stopSignPosition = stopAt.current + distanceBeforeStopping
-            stopAt.current = Infinity
-            flipSignFindNextSign(stopSignPosition)
+    const backToMotionAfterForcedStop = () => {       
+            forceStopFlag.current = 0         
             setTrainSpeed(oldTrainSpeed)
-            setGameState('stroll')
-        } 
+            setGameState('stroll')   
+    }
+
+    const handleQuestionSelection = (whichSign) => {
+
     }
 
 
-    const handleSceneElementClick = (whichSign, selectedOnce) => {
-        if (isFirstTriggerRef.current) { // we take the first trigger i.e. the closest element we hit
+    const handleAskQuestionRequest = (whichSign) => {
+     //   if (isFirstTriggerRef.current) {
+            //console.log('daa')
 
+        setThisQuestion(sceneItems[whichSign]['signText'])
+        setGameState('questionSelected');
+
+        const keySignDistance = parseInt(whichSign)        
+        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 20, 5, keySignDistance - 4)
+        //upDateUseRefs(Infinity, Infinity)
+
+        const keySceneItem = { [whichSign]: sceneItems[keySignDistance] };
+        keySceneItem[whichSign]['selectedTwice'] = true
+        const newSceneItems = Object.assign({}, keySceneItem, waitingSignDict);
+        setSceneItems(newSceneItems)
+
+
+
+
+
+
+
+
+      //  }
+
+       // isFirstTriggerRef.current = false;
+       // setTimeout(() => {
+       //     isFirstTriggerRef.current = true;
+      //  }, 100);
+
+    };
+
+    const handleSceneElementClickOLD = (whichSign, selectedOnce) => {
+        
+        if (isFirstTriggerRef.current) { // we take the first trigger i.e. the closest element we hit
+            
             if (gameState === 'showAnswerSign') { // we have clicked the answer 
                 showFollowUpQuestions() // and want to see the follow up questions
                 return
@@ -144,7 +187,6 @@ const App = () => {
         if (!selectedOnce) { // we click this question for the first time
             const newSceneItems = { ...sceneItems };
             for (const key in newSceneItems) {
-                const keyIsSign = key === whichSign
                 newSceneItems[key]['selectedOnce'] = false // remove a potential prev selection 
             }
             if (keySignDistance !== -1) { // clicked an actual item and not just canvas
@@ -168,9 +210,31 @@ const App = () => {
         }
               
     }
+
    
+    
+
+
+    const flipSignFindNextSign2 = () => {
+        let stop = false
+        const keys = Object.keys(sceneItems);
+        for (const key of keys) {
+            if (stop) {
+                nextAt.current = parseInt(key)
+                break
+            }
+            if (parseInt(key) >= distanceRef.current + distanceBeforeFlipping) {
+                const newSceneItems = { ...sceneItems };
+                newSceneItems[key]['standUpright'] = false // this one goes down now
+                setSceneItems(newSceneItems)
+                stop = true
+            }
+        }  
+    }
+
+
     const flipSignFindNextSign = (signAt) => {
-        
+        console.log('flip at ' + signAt)
         const newSceneItems = { ...sceneItems };
         if (newSceneItems[signAt]) {
             newSceneItems[signAt]['standUpright'] = false // this one goes down now
@@ -179,8 +243,9 @@ const App = () => {
 
         const keysArray = Object.keys(sceneItems);        
         const indexOfKey = keysArray.indexOf(signAt.toString());
+        console.log('A flipSignFindNextSign', nextAt.current) 
         nextAt.current = parseInt(keysArray[indexOfKey + 1]) // here the next one goes down
-        console.log('flipSignFindNextSign', nextAt.current-distanceRef.current) 
+        console.log('B flipSignFindNextSign', nextAt.current) 
     }
   
     const LocomotionAnimation = () => {
@@ -192,17 +257,14 @@ const App = () => {
         useFrame(() => {
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
-            //console.log(stopAt.current)
+            console.log(forceStopFlag.current)
             if (gameState === 'stroll' && distanceRef.current < finalSignAt.current - distanceBeforeFlipping-1) {
-                if (distanceRef.current > nextAt.current - distanceBeforeFlipping) {
-                    nextAt.current += 10
-                    flipSignFindNextSign(nextAt.current - 10)                   
-                }                  
-                if (distanceRef.current > stopAt.current && distanceRef.current > distanceBeforeStopping) {
-                    console.log('stop', stopAt.current)
+                    
+                if (forceStopFlag.current===1 && trainSpeed>0) {
+                    //console.log('stop')
                     setOldTrainSpeed(trainSpeed)
                     setTrainSpeed(0)
-                    setGameState('forceStop')
+                   // setGameState('forceStop')
                 }
                 distanceRef.current += trainSpeed * deltaTime / 1000
                 camera.position.z = distanceRef.current             
@@ -231,21 +293,23 @@ const App = () => {
                         distanceTravelled={30*Math.floor(distanceRef.current/30)} // spare your scene
                     /> 
 
-                            {sceneItems &&  Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
-                                (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&
-                                    <THREESignBlockCustomRerender
-                                        key={key}
-                                        distance={key}
-                                        width={value.width}
-                                        height={value.height}
-                                        signText={value.signText}
-                                        standUpright={value.standUpright}
-                                        selectedOnce={value.selectedOnce}
-                                        selectedTwice={value.selectedTwice}
-                                        answerSign={value.answerSign}
-                                        immune={value.immune}                                    
-                                        distanceRef={distanceRef}                                        
-                                        handleSceneElementClick={handleSceneElementClick}
+                    {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
+                        (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&
+                            <THREESignBlockCustomRerender
+                                key={key}
+                                distance={key}
+                                width={value.width}
+                                height={value.height}
+                                signText={value.signText}
+                                standUpright={value.standUpright}
+                                selectedOnce={value.selectedOnce}
+                                selectedTwice={value.selectedTwice}
+                                answerSign={value.answerSign}
+                                immune={value.immune}
+                                distanceRef={distanceRef}
+                                activeSignIDRef={activeSignIDRef}
+                                forceStopFlag={forceStopFlag}
+                                handleAskQuestionRequest={handleAskQuestionRequest}
                                     />)
                             ))} 
 
@@ -267,6 +331,7 @@ const App = () => {
                     setSceneItems={setSceneItems}
                     setTrainSpeed={setTrainSpeed}
                     trainSpeed={trainSpeed}
+                    forceStopFlag={forceStopFlag}
                     backToMotionAfterForcedStop={backToMotionAfterForcedStop}
                         />
 

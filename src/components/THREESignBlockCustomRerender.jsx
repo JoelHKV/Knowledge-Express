@@ -7,7 +7,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         distance,
         width,
         height,
-        handleSceneElementClick,
+        handleAskQuestionRequest,
         signText,
         standUpright,
         selectedOnce,
@@ -15,6 +15,8 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         immune,   
         distanceRef,
         answerSign,
+        activeSignIDRef,
+        forceStopFlag,
     }) => {
         const textLen = signText.length;
         const signHeight = Math.pow(textLen, 1 / 2.5) / 2.2;
@@ -37,14 +39,32 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 meshRef.current.position.x = width;
                 initRef.current = false
             }
-            if (!standUpright && !immune) {
-                if (meshRef.current && meshRef.current.rotation.x < Math.PI / 2) {
+
+            if (meshRef.current.rotation.x < Math.PI / 2 && !immune && !answerSign) {
+                if ((distance - distanceRef.current - 5 < 0)) {
+                    if (signState === 'ready') {
+
+                        meshRef.current.rotation.x += goDownSpeed;
+                        goDownSpeed = 1.05 * goDownSpeed;
+                    }
+                    if (signState === 'clickedOnce') {
+                        forceStopFlag.current = 1
+                        setSignState('redReady');
+                    }
+                }
+                if ((distance - distanceRef.current - 5 < -0.2) && signState === 'redReady') {
                     meshRef.current.rotation.x += goDownSpeed;
                     goDownSpeed = 1.05 * goDownSpeed;
                 }
             }
-            if (selectedTwice && !immune) {
-                const timeNow = Date.now();
+
+            if (signState === 'clickedOnce' && activeSignIDRef.current !== distanceNumber) {
+                setSignState('ready')
+            }
+
+           
+            if (signState === 'clickedTwice' && !immune) {
+            
                 meshRef.current.position.z = trainToSignGap + distanceRef.current
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
                
@@ -63,15 +83,39 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const leftPolePosition = [-0.7 * signWidth / 2, height / 2, 0];
         const rightPolePositon = [+0.7 * signWidth / 2, height / 2, 0];
 
-        let signBorderColor = selectedOnce ? 'red' : 'green';
-        signBorderColor = selectedTwice ? 'white' : signBorderColor;
-        signBorderColor = answerSign ? 'white' : signBorderColor;
+
+        const [signState, setSignState] = useState('ready');
+
+        
+        let signBorderColor = signState === 'clickedOnce' ? 'red' : 'green'
+        signBorderColor = signState === 'clickedTwice' ? 'white' : signBorderColor
+        signBorderColor = signState === 'clickedTwice' ? 'white' : signBorderColor
+        signBorderColor = signState === 'redReady' ? 'yellow' : signBorderColor
         const handleSignClick = (e) => {
-            console.log(distance);
+             
             e.stopPropagation();
-            if (standUpright && !selectedTwice && !immune) {
-                handleSceneElementClick(distance, selectedOnce);
+
+            if (answerSign || immune) {
+                
+                return
             }
+            
+
+                if (activeSignIDRef.current === distanceNumber) {
+
+                    handleAskQuestionRequest(distance);
+                    setSignState('clickedTwice')
+
+                }
+                else {
+                    activeSignIDRef.current = distanceNumber
+
+                    setSignState('clickedOnce')
+                }
+             
+
+
+             
         };
 
         return (
