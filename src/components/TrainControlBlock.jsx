@@ -49,10 +49,9 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
 
 
     const handleControlBoardClick = (questionMode) => {
-        const distanceValue = distanceRef.current;
-        const [tempDict, firstItemAt, lastItemAt] = composeDict(questionMode, null, 20, 5, 1+distanceValue)
-        console.log(firstItemAt, lastItemAt)
-        upDateUseRefs(firstItemAt, lastItemAt)
+        const distanceValue = parseInt(distanceRef.current);
+        const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, 5, 1+distanceValue)
+        upDateUseRefs(finalSignLocation)
 
         setSceneItems(tempDict)
     };
@@ -78,8 +77,7 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
     ];
    
     return (
-        <div className="TrainControlBlock">
-             
+        <div className="TrainControlBlock">     
             <div>
                 <div className="TrainControlBlockSpeedSlider">
                     <CustomSlider
@@ -113,9 +111,6 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
             >
                 <circle cx="140" cy="140" r="140" fill="none" stroke="black" strokeWidth="100" />
             </svg>
-
-
-
         </div>
     );
 };

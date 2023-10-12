@@ -8,30 +8,53 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         width,
         height,
         handleAskQuestionRequest,
+        showFollowUpQuestions,
         signText,
-        standUpright,
-        selectedOnce,
-        selectedTwice,
-        immune,   
+        clickable,
+        fallable,  
         distanceRef,
         answerSign,
         activeSignIDRef,
+        handleActiveSignClick,
         forceStopFlag,
     }) => {
         const textLen = signText.length;
         const signHeight = Math.pow(textLen, 1 / 2.5) / 2.2;
         const signWidth = Math.pow(textLen, 1 / 2.5) / 1.1;
 
-        let goDownSpeed = 0.01;
+        let goDownSpeed = 0.001;
 
         const distanceNumber = parseFloat(distance);
         const trainToSignGap = distance - distanceRef.current
         const initRef = useRef(true);
         const meshRef = useRef();
+        const flyawaySign = useRef(false);
+        const flipSign = useRef(false)
         let answerSignStart = 50
+        let flyawaySpeed = 0.04;
         const answerSignEnd = 6
         const zPosition = answerSign ? answerSignStart + distanceNumber : distanceNumber;
-        
+
+        const distanceToSignWhenActionStarts = 5
+
+        console.log(clickable, fallable)
+
+        const startState = answerSign ? 'answerSign' : 'basic';
+
+
+        const [signState, setSignState] = useState('basic');
+        const signColorMapping = {
+            'basic': 'green', // normal starting sign that is ready to go down
+            'active': 'red', // once clicked sign can stop the trsin
+            'selected': 'white', // selected as the question, proceeds to render signs
+            'hasStoppedTrain': 'yellow', // stopped train but can go down if user wants
+        };
+
+        let signBorderColor = signColorMapping[signState]
+
+
+
+
 
         useFrame(() => {
             if (initRef.current) {
@@ -40,39 +63,60 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 initRef.current = false
             }
 
-            if (meshRef.current.rotation.x < Math.PI / 2 && !immune && !answerSign) {
-                if ((distance - distanceRef.current - 5 < 0)) {
-                    if (signState === 'ready') {
-
-                        meshRef.current.rotation.x += goDownSpeed;
-                        goDownSpeed = 1.05 * goDownSpeed;
-                    }
-                    if (signState === 'clickedOnce') {
-                        forceStopFlag.current = 1
-                        setSignState('redReady');
-                    }
+            if (fallable && !answerSign && distance - distanceRef.current - distanceToSignWhenActionStarts < 0 && meshRef.current.rotation.x ===0) {
+                if (signState === 'basic') {
+                    flipSign.current = true
                 }
-                if ((distance - distanceRef.current - 5 < -0.2) && signState === 'redReady') {
-                    meshRef.current.rotation.x += goDownSpeed;
-                    goDownSpeed = 1.05 * goDownSpeed;
+                if (signState === 'hasStoppedTrain' && forceStopFlag.current === 0) {
+                    flipSign.current = true
+                }
+
+                if (signState === 'active') {
+                    forceStopFlag.current = 1
+                    setSignState('hasStoppedTrain');
+                }
+            } 
+
+            if (flipSign.current) {
+                meshRef.current.rotation.x += goDownSpeed;
+                goDownSpeed = 1.05 * goDownSpeed;
+
+                if (meshRef.current.rotation.x > Math.PI / 2) {
+                    flipSign.current = false
                 }
             }
 
-            if (signState === 'clickedOnce' && activeSignIDRef.current !== distanceNumber) {
-                setSignState('ready')
-            }
+            if (flyawaySign.current) {
+                meshRef.current.position.y += flyawaySpeed
+                flyawaySpeed = 1.1 * flyawaySpeed
+                if (meshRef.current.position.y > 50) {
+                    flyawaySign.current = false
+                }
 
+            }
+             
+
+
+
+            if (signState === 'active' && activeSignIDRef.current !== distanceNumber) {
+                setSignState('basic')
+            }
+            
            
-            if (signState === 'clickedTwice' && !immune) {
+            if (signState === 'selected') { // && !immune && !fallable
             
                 meshRef.current.position.z = trainToSignGap + distanceRef.current
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
                
             }
-            if (answerSign && !immune) {                      
+            if (answerSign) { //!immune && !fallable
+                
                 answerSignStart = 0.96 * answerSignStart
-                let dist = answerSignStart + answerSignEnd
-                meshRef.current.position.z = distanceRef.current + dist
+                let dist = answerSignStart + answerSignEnd               
+                meshRef.current.position.z = distanceRef.current + dist  
+                 
+                 
+
                 meshRef.current.position.x = 0.985 * meshRef.current.position.x
                 
             }
@@ -84,38 +128,36 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const rightPolePositon = [+0.7 * signWidth / 2, height / 2, 0];
 
 
-        const [signState, setSignState] = useState('ready');
 
-        
-        let signBorderColor = signState === 'clickedOnce' ? 'red' : 'green'
-        signBorderColor = signState === 'clickedTwice' ? 'white' : signBorderColor
-        signBorderColor = signState === 'clickedTwice' ? 'white' : signBorderColor
-        signBorderColor = signState === 'redReady' ? 'yellow' : signBorderColor
+
+
         const handleSignClick = (e) => {
              
             e.stopPropagation();
 
-            if (answerSign || immune) {
-                
+            if (!clickable) {              
                 return
             }
-            
+            if (answerSign) {
+                flyawaySign.current = true
+                showFollowUpQuestions()
+                return
+            }
+            if (activeSignIDRef.current === distanceNumber) {
 
-                if (activeSignIDRef.current === distanceNumber) {
+                handleAskQuestionRequest(distance);
+                setSignState('selected')
+            }
+            else {
+                setSignState('active')
+               // setTimeout(() => {
+               //     activeSignIDRef.current = distanceNumber
+               // }, 50);
+                handleActiveSignClick(distanceNumber)
+                
 
-                    handleAskQuestionRequest(distance);
-                    setSignState('clickedTwice')
-
-                }
-                else {
-                    activeSignIDRef.current = distanceNumber
-
-                    setSignState('clickedOnce')
-                }
-             
-
-
-             
+                
+            }                        
         };
 
         return (
@@ -130,7 +172,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                         <meshStandardMaterial color={signBorderColor} />
                     </mesh>
 
-                    {!selectedTwice && !answerSign ? (
+                    {signState !== 'selected' && !answerSign ? (
                         <>
                             <mesh position={rightPolePositon}>
                                 <cylinderGeometry args={[0.25, 0.25, height]} />
@@ -162,12 +204,12 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         // Compare props and return true if you want to skip re-render
         return (
             prevProps.distance === nextProps.distance &&
-            prevProps.width === nextProps.width &&
-            prevProps.height === nextProps.height &&
-            prevProps.signText === nextProps.signText &&
-            prevProps.standUpright === nextProps.standUpright &&
-            prevProps.selectedOnce === nextProps.selectedOnce &&
-            prevProps.selectedTwice === nextProps.selectedTwice   
+          //  prevProps.width === nextProps.width &&
+         //   prevProps.height === nextProps.height &&
+             prevProps.signText === nextProps.signText  
+           // prevProps.standUpright === nextProps.standUpright &&
+           // prevProps.selectedOnce === nextProps.selectedOnce &&
+          //  prevProps.selectedTwice === nextProps.selectedTwice   
         );
     }
 );

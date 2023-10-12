@@ -48,21 +48,14 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
     if (signType !== 'Instructions' && signType !== 'WaitMessages') {
         const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!' 
         lastLocation += spacing
-        tempDict[lastLocation] = addWhatToDict('custom', finalSignText)
+        tempDict[lastLocation] = addWhatToDict('endMessage', finalSignText)
     }
 
     return [tempDict, firstLocation, lastLocation]
 }
 
-
-
-
-
-
 export const addWhatToDict = (signType, textContent, itemNro) => {
-
    
-    
     let thisQuestion
 
     const waitMessages = ['ChatGPT is thinking.', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
@@ -71,41 +64,36 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
     if (signType === 'WorldQuestion') {
         return {
             width: getRandomNumber(-4, 4),
-            height: 2,
+            height: 1.5,
             signText: worldQuestions[getRandomNumber(0, worldQuestions.length - 1)],
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: false,
+             
+            clickable: true,
+            fallable: true,
         };
     }
     if (signType === 'LifeQuestion') {
         return {
             width: getRandomNumber(-4, 4),
-            height: 2,
+            height: 1.5,
             signText: lifeQuestions[getRandomNumber(0, lifeQuestions.length - 1)],
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: false,
+            
+            clickable: true,
+            fallable: true,
         };
     }
     if (signType === 'Instructions') {
         return {
             width: getRandomNumber(-4, 4),
-            height: 2,
+            height: 1.5,
             signText: instructionSigns[itemNro],
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: true,
+       
+            clickable: false,
+            fallable: true,
         };
     }
-
-
 
     if (signType === 'WaitMessages') {
         thisQuestion = waitMessages[getRandomNumber(0, waitMessages.length - 1)]
@@ -113,24 +101,22 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: Math.sign((Math.random()-0.5)) * getRandomNumber(4, 8),
             height: 1,
             signText: thisQuestion,
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: true,
+     
+            clickable: false,
+            fallable: true,
         }; 
     }
-    if (signType === 'custom') {
+    if (signType === 'endMessage') {
         thisQuestion = textContent
         return {
             width: getRandomNumber(0, 0),
             height: 0.5,
             signText: textContent,
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: true,
+         
+            clickable: false,
+            fallable: true,
         };
     }
 
@@ -141,24 +127,22 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: 0,
             height: 0.5,
             signText: textContent,
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: true,
-            immune: false,
+      
+            clickable: true,
+            fallable: true,
         };
     }
 
     if (signType === 'NewQuestion') {
         return {
             width: getRandomNumber(-4, 4),
-            height: 2,
+            height: 1.5,
             signText: textContent,
-            standUpright: true,
-            selectedOnce: false,
-            selectedTwice: false,
             answerSign: false,
-            immune: false,
+         
+            clickable: true,
+            fallable: true,
         };
     }
 
