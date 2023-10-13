@@ -24,6 +24,7 @@ import THREERailroadBlock from './components/THREERailroadBlock';
 import TrainControlBlock from './components/TrainControlBlock';
 
 
+import TextInputBlock from './components/TextInputBlock';
 
 import THREESignBlock from './components/THREESignBlock';
 import THREESignBlockCustomRerender from './components/THREESignBlockCustomRerender';
@@ -52,11 +53,12 @@ const App = () => {
     
     const [trainSpeed, setTrainSpeed] = useState(1);
     const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
-    const stopDistanceBeforeLastSign = 3;
-    //const distanceBeforeStopping = 5;
-
+    const stopDistanceBeforeLastSign = 6;
+     
 
     const followupQuestionOffset = 4
+
+    const answerFinalDistance = 6
 
 
     const renderingHorizon = 40; // distance of rending along the future path
@@ -67,8 +69,8 @@ const App = () => {
      
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
 
-    const forceStopFlag = useRef(0);
-    const activeSignIDRef = useRef()
+    const forceStopFlag = useRef(false);
+    const activeSignIDRef = useRef(-1)
      
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
@@ -85,7 +87,7 @@ const App = () => {
         console.log('addAnswer')
         setGameState('showAnswerSign')
         const newSceneItems = { };
-        newSceneItems[parseInt(distanceRef.current) + 7] = addWhatToDict('Answer', questionAnswerData['answer'])                      
+        newSceneItems[parseInt(distanceRef.current) + answerFinalDistance] = addWhatToDict('Answer', questionAnswerData['answer'])                      
         setSceneItems(newSceneItems)
     }
 
@@ -97,17 +99,20 @@ const App = () => {
         if (gameState === 'stroll') {
         // empty canvas click can serve three different purposes
 
-
-        setTimeout(() => {
-            handleActiveSignClick(-1) 
-        }, 40);
-
+            if (activeSignIDRef.current > 0) { // sign has been selected once
+                setTimeout(() => {
+                    handleActiveSignClick(-1) // undo the selection 
+                }, 40);
+            }
  
-
-        
-             
-        backToMotionAfterForcedStop()
-             
+            if (forceStopFlag.current) { // sign has stopped the train
+                backToMotionAfterForcedStop() // back to motion
+                return
+            }      
+            else if (activeSignIDRef.current < 0) { //nothing is going on
+                forceStopFlag.current = true // stop the train
+            } 
+                    
         }    
     }
 
@@ -124,7 +129,7 @@ const App = () => {
 
 
     const backToMotionAfterForcedStop = () => {       
-        forceStopFlag.current = 0         
+        forceStopFlag.current = false         
         setTrainSpeed(oldTrainSpeed)
         setGameState('stroll')   
     }
@@ -152,6 +157,17 @@ const App = () => {
         setSceneItems(newSceneItems2)
     }
 
+    const openTextEntry = () => {
+        forceStopFlag.current = true 
+        setGameState('inputs')
+        const [newSceneItems, firstItemAt, finalSignLocation] = composeDict('Blank', null, null, null, 10 + followupQuestionOffset + distanceRef.current)
+
+        console.log(newSceneItems)
+
+        setSceneItems({ newSceneItems })
+
+    }
+
      
     const LocomotionAnimation = () => {
         
@@ -164,18 +180,15 @@ const App = () => {
             const deltaTime = timeNow - timeStamp
             //console.log(forceStopFlag.current)
             if (distanceRef.current >= finalSignAt.current - stopDistanceBeforeLastSign) {
-                forceStopFlag.current=1               
+                forceStopFlag.current=true              
             }
-            if (forceStopFlag.current === 1 && trainSpeed > 0) {
+            if (forceStopFlag.current && trainSpeed > 0) {
                 setOldTrainSpeed(trainSpeed)
                 setTrainSpeed(0)
             }
 
-
-
             distanceRef.current += trainSpeed * deltaTime / 1000
             camera.position.z = distanceRef.current 
-
 
             timeStamp = timeNow
         });
@@ -184,18 +197,13 @@ const App = () => {
     };
     
     return (      
-        <Box className="appContainer">   
-             
-                 
-            
+        <Box className="appContainer">                                       
             <div className="canvas-container" >
                 <Canvas camera={camera} gl={{ antialias: true }} onClick={() => handleCanvasClick()}>                    
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[0, 10, 0]} intensity={0.5}/>
                     <Stars />                                   
-                    <THREERailroadBlock                             
-                        distanceTravelled={30*Math.floor(distanceRef.current/30)} // spare your scene
-                    /> 
+                    <THREERailroadBlock distanceRef={distanceRef}/> 
 
                     {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
                         (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&
@@ -214,22 +222,18 @@ const App = () => {
                             handleAskQuestionRequest={handleAskQuestionRequest}
                             handleActiveSignClick={handleActiveSignClick}
                             showFollowUpQuestions={showFollowUpQuestions}
-                                    />)
-                            ))} 
+                        />)
+                    ))} 
 
-
-
-
-
-
-                                {  /* <OrbitControls/>*/}
+                                { /* <OrbitControls/>*/}
                              
-                            <LocomotionAnimation />
-                            
+                    <LocomotionAnimation />                           
                 </Canvas>
 
-                        <TrainControlBlock
-                   
+                {gameState === 'input' && <TextInputBlock />
+                }
+
+                <TrainControlBlock                   
                     upDateUseRefs={upDateUseRefs}
                     distanceRef={distanceRef}
                     setSceneItems={setSceneItems}
@@ -237,9 +241,9 @@ const App = () => {
                     trainSpeed={trainSpeed}
                     forceStopFlag={forceStopFlag}
                     backToMotionAfterForcedStop={backToMotionAfterForcedStop}
-                        />
-
-                    </div>
+                    openTextEntry={openTextEntry}
+                    />
+            </div>
                       
         </Box>                      
     );

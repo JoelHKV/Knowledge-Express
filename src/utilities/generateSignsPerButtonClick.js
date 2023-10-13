@@ -11,6 +11,13 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
     let firstLocation
     let lastLocation
    // let positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
+
+    if (signType === 'Blank') {
+        tempDict[parseInt(positionOffset, 10)] = addWhatToDict('endMessage', 'sss')
+        firstLocation = null
+        lastLocation = null
+    }
+
     if (signType === 'QuestionDict') {
         let i = 0; 
         for (const key in textContent) {

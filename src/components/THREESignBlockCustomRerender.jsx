@@ -30,7 +30,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const meshRef = useRef();
         const flyawaySign = useRef(false);
         const flipSign = useRef(false)
-        let answerSignStart = 50
+        let answerSignStart =  50
         let flyawaySpeed = 0.04;
         const answerSignEnd = 6
         const zPosition = answerSign ? answerSignStart + distanceNumber : distanceNumber;
@@ -67,12 +67,12 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 if (signState === 'basic') {
                     flipSign.current = true
                 }
-                if (signState === 'hasStoppedTrain' && forceStopFlag.current === 0) {
+                if (signState === 'hasStoppedTrain' && !forceStopFlag.current) {
                     flipSign.current = true
                 }
 
                 if (signState === 'active') {
-                    forceStopFlag.current = 1
+                    forceStopFlag.current = true
                     setSignState('hasStoppedTrain');
                 }
             } 
@@ -127,15 +127,10 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const leftPolePosition = [-0.7 * signWidth / 2, height / 2, 0];
         const rightPolePositon = [+0.7 * signWidth / 2, height / 2, 0];
 
-
-
-
-
-        const handleSignClick = (e) => {
-             
+        const handleSignClick = (e) => {          
             e.stopPropagation();
 
-            if (!clickable) {              
+            if (!clickable || flipSign.current) {              
                 return
             }
             if (answerSign) {
@@ -144,19 +139,12 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 return
             }
             if (activeSignIDRef.current === distanceNumber) {
-
                 handleAskQuestionRequest(distance);
                 setSignState('selected')
             }
             else {
                 setSignState('active')
-               // setTimeout(() => {
-               //     activeSignIDRef.current = distanceNumber
-               // }, 50);
-                handleActiveSignClick(distanceNumber)
-                
-
-                
+                handleActiveSignClick(distanceNumber)                          
             }                        
         };
 

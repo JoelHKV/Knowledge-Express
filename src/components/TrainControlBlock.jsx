@@ -5,8 +5,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline'; // You can choose
 
 import { addWhatToDict, composeDict } from '../utilities/generateSignsPerButtonClick';
 
-
-
+ 
 
 import './TrainControlBlock.css';
 
@@ -29,10 +28,10 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
 
-const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpeed, setTrainSpeed, backToMotionAfterForcedStop, forceStopFlag }) => {
+const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpeed, setTrainSpeed, openTextEntry, backToMotionAfterForcedStop, forceStopFlag }) => {
      
-    //const [thisSpeed, setThisSpeed] = useState(speed);
-     
+
+
 
     useEffect(() => {
 
@@ -41,14 +40,20 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
     }, []);
 
 
+    
 
     const handleSliderChange = (event, newValue) => {
-       forceStopFlag.current = 0   
+       forceStopFlag.current = false   
        setTrainSpeed(newValue) 
     };
 
 
     const handleControlBoardClick = (questionMode) => {
+
+        if (questionMode === 'MyQuestion') {
+            openTextEntry()
+            return
+        }
         const distanceValue = parseInt(distanceRef.current);
         const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, 5, 1+distanceValue)
         upDateUseRefs(finalSignLocation)
@@ -104,13 +109,15 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
                 </Button>
             ))}
              
-            <svg
-                width="10%"
-                height="10%"
-                style={{ position: 'absolute', bottom: '200px', left: '20%', transform: 'translateX(-50%)' }}
-            >
-                <circle cx="140" cy="140" r="140" fill="none" stroke="black" strokeWidth="100" />
-            </svg>
+             
+
+          
+             
+             
+
+
+
+
         </div>
     );
 };
