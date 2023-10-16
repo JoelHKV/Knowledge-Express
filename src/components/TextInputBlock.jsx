@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TextInputBlock.css'; // Import the CSS file
 
-const TextInputBlock = ({}) => {
+const TextInputBlock = ({ handleSubmitTextEntry }) => {
 
 
     const [inputValue, setInputValue] = useState('');
@@ -14,15 +14,7 @@ const TextInputBlock = ({}) => {
         setInputValue('');
     }
 
-    const handleSubmit = () => {
-        // You can perform any actions you want when the submit button is clicked here
-        // For example, you can call a function passed through the 'onSubmit' prop
-        
-        console.log(inputValue)
-         
-    }
-
-
+    
 
     return (
     <div className="centered-container">
@@ -44,9 +36,18 @@ const TextInputBlock = ({}) => {
                     </button>
                 )}
             
-                <button className="submit-button" onClick={handleSubmit}>
+                <button
+                    className="submit-button"
+                    onClick={() => inputValue.trim() !== '' && handleSubmitTextEntry(inputValue)}
+                >
                     Submit
                 </button>
+                
+
+
+
+
+
             </div>
             
          

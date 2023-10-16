@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/system';
-import { Slider, Button, Tooltip } from '@mui/material';
+import { Slider, Button, Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'; // You can choose an appropriate icon
 
 import { addWhatToDict, composeDict } from '../utilities/generateSignsPerButtonClick';
 
- 
+import TextInputBlock from '../components/TextInputBlock';
 
 import './TrainControlBlock.css';
 
@@ -28,9 +28,9 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
 
-const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpeed, setTrainSpeed, openTextEntry, backToMotionAfterForcedStop, forceStopFlag }) => {
+const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, writeOwnQuestionAndGo, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, openTextEntry, backToMotionAfterForcedStop, forceStopFlag }) => {
      
-
+    const [ownQuestionPosition, setOwnQuestionPosition] = useState();
 
 
     useEffect(() => {
@@ -49,17 +49,50 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
 
 
     const handleControlBoardClick = (questionMode) => {
-
-        if (questionMode === 'MyQuestion') {
-            openTextEntry()
-            return
-        }
         const distanceValue = parseInt(distanceRef.current);
-        const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, 5, 1+distanceValue)
-        upDateUseRefs(finalSignLocation)
 
-        setSceneItems(tempDict)
+
+        if (questionMode === 'OwnQuestion') {
+            setGameState('input')
+            setOldTrainSpeed(trainSpeed)
+            setTrainSpeed(0)   
+            const ownQuestion = 6 + distanceValue
+            setOwnQuestionPosition(ownQuestion)
+
+
+
+
+            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, '', null, null, ownQuestion);
+            setSceneItems(tempDict)
+
+        }
+        else {
+
+            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, 5, 1 + distanceValue)
+            upDateUseRefs(finalSignLocation)
+            setSceneItems(tempDict)
+        }
+
+        
     };
+
+    const handleSubmitTextEntry = (ownQuestion) => {
+        writeOwnQuestionAndGo(ownQuestion, ownQuestionPosition)
+    }
+
+    const handleMouseWheelScroll = (event) => {
+        const scrollDirection = Math.sign(event.deltaY) 
+        if (event.deltaY < 0 && trainSpeed < 4) {             
+            setTrainSpeed((prevSpeed) => prevSpeed + 1);
+            setOldTrainSpeed(trainSpeed + 1)         
+        }
+        if (event.deltaY > 0 && trainSpeed > 0) {
+            setTrainSpeed((prevSpeed) => prevSpeed - 1);
+            setOldTrainSpeed(trainSpeed - 1)
+        }
+        console.log('Mouse wheel scrolled', scrollDirection);
+    };
+
 
 
     const buttonConfig = [
@@ -73,7 +106,7 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
         },
         {
             text: 'MQ',
-            parameter: 'MyQuestion',
+            parameter: 'OwnQuestion',
         },
         {
             text: '?',
@@ -82,7 +115,17 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
     ];
    
     return (
-        <div className="TrainControlBlock">     
+        <div className="TrainControlBlock" onWheel={handleMouseWheelScroll}>  
+            <div className="controlboardtop"></div>
+            <div className="controlboard"></div>
+
+
+            <Typography className='AppTitleText' variant="h3">
+                Knowledge Express
+            </Typography>
+
+
+
             <div>
                 <div className="TrainControlBlockSpeedSlider">
                     <CustomSlider
@@ -109,15 +152,14 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, setSceneItems, trainSpe
                 </Button>
             ))}
              
-             
-
-          
-             
-             
+            
+              
 
 
-
-
+            {gameState === 'input' && <TextInputBlock
+                handleSubmitTextEntry={handleSubmitTextEntry}
+            />
+            }                              
         </div>
     );
 };

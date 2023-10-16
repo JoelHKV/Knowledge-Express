@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { newGameMode } from './reducers/knowledgeExpressSlice';
 
 import { getQandA } from './hooks/getQandA';
-
+//import { getMockQandA } from './hooks/getMockQandA';
 
 import { Grid, Button, Box } from '@mui/material'; // use MUI component library
 
@@ -114,6 +114,11 @@ const App = () => {
             } 
                     
         }    
+        if (gameState === 'input') {
+            setGameState('stroll')
+            setSceneItems({})
+        }
+
     }
 
     const handleActiveSignClick = (signID) => { 
@@ -142,11 +147,20 @@ const App = () => {
         const keySignDistance = parseInt(whichSign)
         //reduce the signs to the selected question
         const onlySelectedQuestionSign = { [whichSign]: sceneItems[keySignDistance] };
-        //generate waiting signs
-        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 30, 5, distanceRef.current)      
-        const newSceneItems = Object.assign({}, waitingSignDict, onlySelectedQuestionSign);
+      
+        const newSceneItems = addWaitmessages(onlySelectedQuestionSign)
+
         setSceneItems(newSceneItems)
     };
+
+    const addWaitmessages = (sceneItemsForNow) => {
+        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 30, 5, 2 + distanceRef.current)
+        const newSceneItems = Object.assign({}, waitingSignDict, sceneItemsForNow);
+         
+        return newSceneItems
+    }
+
+
 
     const showFollowUpQuestions = () => {
         setGameState('stroll')
@@ -158,15 +172,24 @@ const App = () => {
     }
 
     const openTextEntry = () => {
-        forceStopFlag.current = true 
-        setGameState('inputs')
-        const [newSceneItems, firstItemAt, finalSignLocation] = composeDict('Blank', null, null, null, 10 + followupQuestionOffset + distanceRef.current)
-
-        console.log(newSceneItems)
-
-        setSceneItems({ newSceneItems })
+   
+        
 
     }
+    const writeOwnQuestionAndGo = (ownQuestion, locationID) => {
+         
+        setTrainSpeed(oldTrainSpeed)
+        setThisQuestion(ownQuestion)
+        setGameState('questionSelected');
+
+        const ownQuestionItem = sceneItems
+        ownQuestionItem[locationID]['signText'] = ownQuestion
+     
+        const newSceneItems = addWaitmessages(ownQuestionItem)
+        setSceneItems(newSceneItems)
+
+    }
+    
 
      
     const LocomotionAnimation = () => {
@@ -199,12 +222,14 @@ const App = () => {
     return (      
         <Box className="appContainer">                                       
             <div className="canvas-container" >
-                <Canvas camera={camera} gl={{ antialias: true }} onClick={() => handleCanvasClick()}>                    
+                <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={() => handleCanvasClick()}>                    
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[0, 10, 0]} intensity={0.5}/>
-                    <Stars />                                   
-                    <THREERailroadBlock distanceRef={distanceRef}/> 
+                    <Stars />     
 
+                    
+                    <THREERailroadBlock distanceRef={distanceRef}/>
+                     
                     {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
                         (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&
                             <THREESignBlockCustomRerender
@@ -213,6 +238,8 @@ const App = () => {
                             width={value.width}
                             height={value.height}
                             signText={value.signText}
+                            ownQuestionSign={value.ownQuestionSign}
+                            startingSignState={value.startingSignState}
                             answerSign={value.answerSign}
                             clickable={value.clickable}
                             fallable={value.fallable}
@@ -223,27 +250,28 @@ const App = () => {
                             handleActiveSignClick={handleActiveSignClick}
                             showFollowUpQuestions={showFollowUpQuestions}
                         />)
-                    ))} 
+                    ))}
 
                                 { /* <OrbitControls/>*/}
                              
                     <LocomotionAnimation />                           
                 </Canvas>
-
-                {gameState === 'input' && <TextInputBlock />
-                }
-
+            </div>
                 <TrainControlBlock                   
                     upDateUseRefs={upDateUseRefs}
                     distanceRef={distanceRef}
+                    gameState={gameState}
+                    setGameState={setGameState}
                     setSceneItems={setSceneItems}
                     setTrainSpeed={setTrainSpeed}
                     trainSpeed={trainSpeed}
+                    setOldTrainSpeed={setOldTrainSpeed}
                     forceStopFlag={forceStopFlag}
+                    writeOwnQuestionAndGo={writeOwnQuestionAndGo}
                     backToMotionAfterForcedStop={backToMotionAfterForcedStop}
                     openTextEntry={openTextEntry}
                     />
-            </div>
+           
                       
         </Box>                      
     );

@@ -13,12 +13,20 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         clickable,
         fallable,  
         distanceRef,
+        ownQuestionSign,
+        startingSignState,
         answerSign,
         activeSignIDRef,
         handleActiveSignClick,
         forceStopFlag,
     }) => {
-        const textLen = signText.length;
+         
+
+        let textLen = signText.length;
+        if (ownQuestionSign) {
+            textLen = 340
+        }
+
         const signHeight = Math.pow(textLen, 1 / 2.5) / 2.2;
         const signWidth = Math.pow(textLen, 1 / 2.5) / 1.1;
 
@@ -37,12 +45,16 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         const distanceToSignWhenActionStarts = 5
 
-        console.log(clickable, fallable)
+        console.log(ownQuestionSign)
 
-        const startState = answerSign ? 'answerSign' : 'basic';
+        let startState = 'basic';
+
+        if (startingSignState) {
+            startState = startingSignState
+        }
 
 
-        const [signState, setSignState] = useState('basic');
+        const [signState, setSignState] = useState(startState);
         const signColorMapping = {
             'basic': 'green', // normal starting sign that is ready to go down
             'active': 'red', // once clicked sign can stop the trsin
@@ -192,8 +204,9 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         // Compare props and return true if you want to skip re-render
         return (
             prevProps.distance === nextProps.distance &&
-          //  prevProps.width === nextProps.width &&
-         //   prevProps.height === nextProps.height &&
+          //   prevProps.startingSignState === nextProps.startingSignState &&
+             //   prevProps.width === nextProps.width &&
+           //  prevProps.height === nextProps.height &&
              prevProps.signText === nextProps.signText  
            // prevProps.standUpright === nextProps.standUpright &&
            // prevProps.selectedOnce === nextProps.selectedOnce &&

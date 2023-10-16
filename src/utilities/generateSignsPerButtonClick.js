@@ -12,11 +12,28 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
     let lastLocation
    // let positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
 
-    if (signType === 'Blank') {
-        tempDict[parseInt(positionOffset, 10)] = addWhatToDict('endMessage', 'sss')
+    if (signType === 'OwnQuestion') {
+        tempDict[parseInt(positionOffset, 10)] = {
+                ownQuestionSign: true,
+                startingSignState: 'selected',
+                answerSign: false,
+                clickable: false,
+                fallable: false,
+                height: 0.5,
+                signText: textContent,
+                width: 0,
+        }
+
+
+
         firstLocation = null
         lastLocation = null
-    }
+
+    };
+
+
+
+    
 
     if (signType === 'QuestionDict') {
         let i = 0; 
@@ -52,7 +69,7 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
             }
         }
     }
-    if (signType !== 'Instructions' && signType !== 'WaitMessages') {
+    if (signType !== 'Instructions' && signType !== 'WaitMessages' && signType !== 'ownQuestion') {
         const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!' 
         lastLocation += spacing
         tempDict[lastLocation] = addWhatToDict('endMessage', finalSignText)
