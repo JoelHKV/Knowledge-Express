@@ -1,14 +1,13 @@
 import React, { useState, useRef } from 'react';
 
-import { getQandA } from './hooks/getQandA';
-//import { getMockQandA } from './hooks/getMockQandA';
+import { fetchQandA } from './hooks/fetchQandA';
+import { fetchMockQandA } from './hooks/fetchMockQandA';
 
-import { Box } from '@mui/material'; // use MUI component library
+import { Box } from '@mui/material';  
 
 import THREESceneBlock from './components/THREESceneBlock';
 import TrainControlBlock from './components/TrainControlBlock';
 import TextInputBlock from './components/TextInputBlock';
- 
  
 import { addWhatToDict, composeDict } from './utilities/generateSignsPerButtonClick';
  
@@ -25,7 +24,7 @@ const App = () => {
 
     const pivotDistanceToSign = 9; 
     const distanceToFirstSign = 5;
-    const signSpacing = 1; 
+    const signSpacing = 4; 
 
     const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
@@ -33,8 +32,12 @@ const App = () => {
  
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
  
-    const { questionAnswerData, loaded, error } = getQandA(cloudFunctionURL, thisQuestion); // thisQuestion
- 
+    const { questionAnswerData, loaded, error } = fetchQandA(cloudFunctionURL, thisQuestion); // fetch real data from the API
+    //const { questionAnswerData, loaded, error } = fetchMockQandA(cloudFunctionURL, thisQuestion); // mimic fetch and generate mock data
+
+
+
+
     if (loaded && gameState === 'questionSelected') {
         console.log('addAnswer')
         setGameState('showAnswerSign')

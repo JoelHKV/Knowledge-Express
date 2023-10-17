@@ -1,43 +1,12 @@
-import axios from 'axios';
 import { useState, useEffect, useRef } from 'react';
 
 
-
-export const getQandA = (cloudFunctionURL, thisQuestion) => {
+export const fetchMockQandA = (cloudFunctionURL, thisQuestion) => {
     const [questionAnswerData, setQuestionAnswerData] = useState({});
- 
-   // const [loaded, setLoaded] = useState(false);  
+  
     const [error, setError] = useState(null);
 
-
     const loadedRef = useRef(false);
-
-
-    const fetchData = () => { 
-        
-        axios   
-            .get(cloudFunctionURL + '?question=' + thisQuestion)   
-            .then(response => {
-                response.data
-                setQuestionAnswerData(response.data) 
-                 
-                loadedRef.current = true
-                setTimeout(() => {
-                    loadedRef.current = false
-                }, 1000);
-
-
-
-            })
-            .catch(error => {
-                setError('1st error: ' + error);
-            })
-            .finally(() => {
-                
-            });
- 
-
-    }
 
     const fetchMockData = () => {
         const questionAnswerDataDict = {}
@@ -45,20 +14,15 @@ export const getQandA = (cloudFunctionURL, thisQuestion) => {
         for (let i = 1; i <= 6; i++) {
             questionAnswerDataDict['q' + i.toString()] = generateRandomSentence(getRandomNumber(60, 200))
         }
-         
-        
-        setTimeout(() => {
-            
+               
+        setTimeout(() => {           
             setQuestionAnswerData(questionAnswerDataDict) 
             loadedRef.current = true
-        }, 1400);
-        setTimeout(() => {
-            loadedRef.current = false
-             
-            // setLoaded(true)
+            setTimeout(() => {
+                loadedRef.current = false
+            }, 1000);
+
         }, 2400);
-
-
 
     }
 
@@ -94,20 +58,13 @@ export const getQandA = (cloudFunctionURL, thisQuestion) => {
     };
 
 
-
-
     useEffect(() => {
         if (thisQuestion) {
-           // setLoaded(false)
             loadedRef.current = false
-            fetchData()
-           // fetchMockData()
-             
+            fetchMockData()         
         }
-
-
-
     }, [thisQuestion])
+
     const loaded = loadedRef.current
     return { questionAnswerData, loaded, error }
 

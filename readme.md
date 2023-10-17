@@ -1,8 +1,8 @@
 # Knowledge Express
-[Knowledge Express is deployed to GitHub](https://JoelHKV.github.io/GalleryGalore/)
+[Knowledge Express is deployed to GitHub](https://JoelHKV.github.io/Knowledge-Express/)
 
 ## General Information
-Gallery Galore is an exploratory app for examining the possibilities of AI for learning. In particular, it is a collection of AI-generated paintings that help users associate famous painters with their distinct painting styles.
+Knowledge Express is an exploratory app for examining the possibilities of AI for learning. In particular, it is a collection of AI-generated paintings that help users associate famous painters with their distinct painting styles.
 
 
 ## Instructions and Features

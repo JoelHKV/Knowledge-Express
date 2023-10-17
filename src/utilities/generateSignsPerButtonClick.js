@@ -6,7 +6,6 @@ const instructionSigns = ['Welcome onboard to Knowledge Express!',
 ];
 
 export const composeDict = (signType, textContent, nroItems, spacing, positionOffset) => {
-    console.log(signType)
     const tempDict = {} // init sceneItems dictionary from initial railroad sign
     let firstLocation
     let lastLocation

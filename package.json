@@ -1,9 +1,9 @@
 {
-  "name": "Knowledge Express",
+  "name": "Knowledge-Express",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
-  "homepage": "https://JoelHKV.github.io/KnowledgeExpress/",
+  "homepage": "https://JoelHKV.github.io/Knowledge-Express/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
