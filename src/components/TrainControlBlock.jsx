@@ -26,7 +26,7 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
  
-const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, setLocationID, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag }) => {
+const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag }) => {
       
     useEffect(() => {
        // handleControlBoardClick('OwnQuestion')
@@ -48,14 +48,14 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, setLocationI
             setOldTrainSpeed(trainSpeed)
             setTrainSpeed(0)   
             const locationID = 0.1 + pivotDistanceToSign + parseInt(distanceRef.current)
-            setLocationID(locationID)
             const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, '', null, null, locationID);
+            delete tempDict[0]
             setSceneItems(tempDict)
         }
         else {
             setGameState('stroll')
             const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, signSpacing, distanceToFirstSign + distanceValue)
-            upDateUseRefs(finalSignLocation)
+            finalSignAt.current = finalSignLocation            
             setSceneItems(tempDict)
         }
   

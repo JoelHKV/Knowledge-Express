@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -11,16 +11,17 @@ import './THREESceneBlock.css';
 
 const THREESceneBlock = ({
     sceneItems,
+    setSceneItems,
     distanceRef,
     forceStopFlag,
-    activeSignIDRef,
     pivotDistanceToSign,
-    handleCanvasClick,
     handleAskQuestionRequest,
-    handleActiveSignClick,
     showFollowUpQuestions,
     finalSignAt,
+    gameState,
+    setGameState,
     trainSpeed,
+    oldTrainSpeed,
     setOldTrainSpeed,
     setTrainSpeed,
 }) => {
@@ -29,19 +30,45 @@ const THREESceneBlock = ({
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
+    const activeSignIDRef = useRef(-1)
+    const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls
+
+    const handleActiveSignClick = (signID) => {
+        if (isFirstTriggerRef.current) {
+            activeSignIDRef.current = signID
+        }
+        isFirstTriggerRef.current = false
+        setTimeout(() => {
+            isFirstTriggerRef.current = true
+        }, 100);
+    }
 
 
+    const handleCanvasClick = () => {
+        // empty canvas click can mean three different things
 
+        if (gameState === 'stroll') {
 
+             if (activeSignIDRef.current > 0) { // sign has been selected once
+                 setTimeout(() => {
+                     handleActiveSignClick(-1) // undo the selection 
+                 }, 40);
+             }
 
+            if (forceStopFlag.current) { // sign has stopped the train
+                forceStopFlag.current = false // back to motion
+                setTrainSpeed(oldTrainSpeed) // back to motion
+                setGameState('stroll')
+                return
+            }
+        }
+        if (gameState === 'input') {
+            setGameState('stroll')
+            setTrainSpeed(oldTrainSpeed)
+            setSceneItems({})
+        }
 
-
-
-
-
-
-
-
+    }
 
     const LocomotionAnimation = () => {
 

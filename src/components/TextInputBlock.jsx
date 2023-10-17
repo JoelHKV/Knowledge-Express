@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TextInputBlock.css'; // Import the CSS file
 
-const TextInputBlock = ({ handleSubmitTextEntry }) => {
+const TextInputBlock = ({ setThisQuestion, setTrainSpeed, oldTrainSpeed, setGameState, sceneItems, setSceneItems, addWaitmessages }) => {
 
     const [inputValue, setInputValue] = useState('');
 
@@ -13,28 +13,38 @@ const TextInputBlock = ({ handleSubmitTextEntry }) => {
         setInputValue('');
     }
 
+
+    const processOwnQuestion = (ownQuestion) => {
+        setTrainSpeed(oldTrainSpeed)
+        setThisQuestion(ownQuestion)
+        setGameState('questionSelected');
+        const ownQuestionItem = sceneItems
+        const locationKey = Object.keys(ownQuestionItem)[0]
+        ownQuestionItem[locationKey]['signText'] = ownQuestion
+        const newSceneItems = addWaitmessages(ownQuestionItem)
+        setSceneItems(newSceneItems)
+    }
+
     return (
-    <div className="centered-container">
-            <div className="centered-content">                
-                <textarea className="centered-input"
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    rows="4" 
-                    placeholder="Type your question here..."
-                ></textarea>           
-                {inputValue && (
-                    <button className="clear-button" onClick={clearInput}>
-                         X  {/* You can use a suitable clear icon here */}
-                    </button>
-                )}          
-                <button
-                    className="submit-button"
-                    onClick={() => inputValue.trim() !== '' && handleSubmitTextEntry(inputValue)}
-                >
-                    Submit
-                </button>              
-            </div>                   
+        <div className="TextInputBlock">                         
+            <textarea className="TextInputBlock-text"
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                rows="4" 
+                placeholder="Type your question here..."
+            ></textarea>           
+            {inputValue && (
+                <button className="TextInputBlock-clear-button" onClick={clearInput}>
+                    X   
+                </button>
+            )}          
+            <button
+                className="TextInputBlock-submit-button"
+                onClick={() => inputValue.trim() !== '' && processOwnQuestion(inputValue)}
+            >
+                Submit
+            </button>                                          
         </div>
     );
 }
