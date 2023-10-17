@@ -16,9 +16,11 @@ import { getQandA } from './hooks/getQandA';
 
 import { Grid, Button, Box } from '@mui/material'; // use MUI component library
 
-
+import THREESceneBlock from './components/THREESceneBlock';
  
 import THREERailroadBlock from './components/THREERailroadBlock';
+
+
 import TrainControlBlock from './components/TrainControlBlock';
 import TextInputBlock from './components/TextInputBlock';
  
@@ -35,7 +37,7 @@ const App = () => {
 
      
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+   // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     const [sceneItems, setSceneItems] = useState();
     const [gameState, setGameState] = useState('stroll'); 
@@ -45,19 +47,12 @@ const App = () => {
     const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
 
     const [locationID, setLocationID] = useState(); // location of own text entry sign
-
-
-     
+    
     const pivotDistanceToSign = 9; 
-
     const distanceToFirstSign = 5;
     const signSpacing = 1; 
 
-
-    const renderingHorizon = 40; // distance of rending along the future path
-
-    const distanceRef = useRef(0); // distance travelled
-     
+    const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
 
     const forceStopFlag = useRef(false);
@@ -91,12 +86,11 @@ const App = () => {
         finalSignAt.current = finalSignLocation     
     }
   
-    const handleCanvasClick = () => {  // clicking empty part of canvas unselects
-         
+    const handleCanvasClick = () => {  
+         // empty canvas click can mean three different things
 
         if (gameState === 'stroll') {
-        // empty canvas click can mean three different purposes
-
+        
             if (activeSignIDRef.current > 0) { // sign has been selected once
                 setTimeout(() => {
                     handleActiveSignClick(-1) // undo the selection 
@@ -180,71 +174,27 @@ const App = () => {
 
     }
        
-    const LocomotionAnimation = () => {
-        
-        camera.position.set(0, 2, distanceRef.current);
-        camera.lookAt(0, 2, distanceRef.current + 1);  
-        let timeStamp = Date.now()
-      
-        useFrame(() => {
-            const timeNow = Date.now()
-            const deltaTime = timeNow - timeStamp
-            //console.log(forceStopFlag.current)
-            if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign) {
-                forceStopFlag.current=true              
-            }
-            if (forceStopFlag.current && trainSpeed > 0) {
-                setOldTrainSpeed(trainSpeed)
-                setTrainSpeed(0)
-            }
-
-            distanceRef.current += trainSpeed * deltaTime / 1000
-            camera.position.z = distanceRef.current 
-
-            timeStamp = timeNow
-        });
-
-        return null;  
-    };
+   
     
     return (      
         <Box className="appContainer">                                       
-            <div className="canvas-container" >
-                <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={() => handleCanvasClick()}>                    
-                    <ambientLight intensity={0.3} />
-                    <directionalLight position={[0, 10, 0]} intensity={0.5}/>
-                    <Stars />     
-                   
-                    <THREERailroadBlock distanceRef={distanceRef}/>
-                     
-                    {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
-                        (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&
-                            <THREESignBlockCustomRerender
-                            key={key}
-                            distance={key}
-                            width={value.width}
-                            height={value.height}
-                            signText={value.signText}
-                            ownQuestionSign={value.ownQuestionSign}                          
-                            startingSignState={value.startingSignState}
-                            answerSign={value.answerSign}
-                            clickable={value.clickable}
-                            fallable={value.fallable}
-                            distanceRef={distanceRef}
-                            activeSignIDRef={activeSignIDRef}
-                            forceStopFlag={forceStopFlag}
-                            pivotDistanceToSign={pivotDistanceToSign}
-                            handleAskQuestionRequest={handleAskQuestionRequest}
-                            handleActiveSignClick={handleActiveSignClick}
-                            showFollowUpQuestions={showFollowUpQuestions}
-                        />)
-                    ))}
-
-                                { /* <OrbitControls/>*/}
-                             
-                    <LocomotionAnimation />                           
-                </Canvas>
-            </div>
+            <THREESceneBlock
+               // camera={camera}
+                sceneItems={sceneItems}
+                distanceRef={distanceRef}
+                forceStopFlag={forceStopFlag}
+                activeSignIDRef={activeSignIDRef}
+                pivotDistanceToSign={pivotDistanceToSign}
+                handleCanvasClick={handleCanvasClick}
+                handleAskQuestionRequest={handleAskQuestionRequest}
+                handleActiveSignClick={handleActiveSignClick}
+                showFollowUpQuestions={showFollowUpQuestions}
+                finalSignAt={finalSignAt}
+                trainSpeed={trainSpeed}
+                setTrainSpeed={setTrainSpeed}
+                setOldTrainSpeed={setOldTrainSpeed}
+                 
+            />
                 <TrainControlBlock                   
                     upDateUseRefs={upDateUseRefs}
                     distanceRef={distanceRef}
