@@ -13,7 +13,7 @@ export const composeDict = (signType, textContent, nroItems, spacing, positionOf
    // let positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
 
     if (signType === 'OwnQuestion') {
-        tempDict[parseInt(positionOffset, 10)] = {
+        tempDict[positionOffset] = {
                 ownQuestionSign: true,
                 startingSignState: 'selected',
                 answerSign: false,
@@ -90,8 +90,7 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: getRandomNumber(-4, 4),
             height: 1.5,
             signText: worldQuestions[getRandomNumber(0, worldQuestions.length - 1)],
-            answerSign: false,
-             
+            answerSign: false,           
             clickable: true,
             fallable: true,
         };
@@ -101,8 +100,7 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: getRandomNumber(-4, 4),
             height: 1.5,
             signText: lifeQuestions[getRandomNumber(0, lifeQuestions.length - 1)],
-            answerSign: false,
-            
+            answerSign: false,           
             clickable: true,
             fallable: true,
         };
@@ -112,8 +110,7 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: getRandomNumber(-4, 4),
             height: 1.5,
             signText: instructionSigns[itemNro],
-            answerSign: false,
-       
+            answerSign: false,      
             clickable: false,
             fallable: true,
         };
@@ -125,8 +122,7 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: Math.sign((Math.random()-0.5)) * getRandomNumber(4, 8),
             height: 1,
             signText: thisQuestion,
-            answerSign: false,
-     
+            answerSign: false,    
             clickable: false,
             fallable: true,
         }; 
@@ -137,10 +133,9 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
             width: getRandomNumber(0, 0),
             height: 0.5,
             signText: textContent,
-            answerSign: false,
-         
+            answerSign: false,         
             clickable: false,
-            fallable: true,
+            fallable: false,
         };
     }
 

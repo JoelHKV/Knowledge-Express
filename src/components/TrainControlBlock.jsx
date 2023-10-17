@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/system';
 import { Slider, Button, Typography } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'; // You can choose an appropriate icon
 
 import { addWhatToDict, composeDict } from '../utilities/generateSignsPerButtonClick';
 
-import TextInputBlock from '../components/TextInputBlock';
 
 import './TrainControlBlock.css';
 
@@ -27,61 +25,45 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 
 }));
  
-
-const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, writeOwnQuestionAndGo, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, openTextEntry, backToMotionAfterForcedStop, forceStopFlag }) => {
-     
-    const [ownQuestionPosition, setOwnQuestionPosition] = useState();
-
-
+ 
+const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, setLocationID, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag }) => {
+      
     useEffect(() => {
-
-        handleControlBoardClick('WorldQuestion') 
+       // handleControlBoardClick('OwnQuestion')
+         handleControlBoardClick('WorldQuestion') 
        // handleControlBoardClick('Instructions')
     }, []);
-
-
-    
-
+  
     const handleSliderChange = (event, newValue) => {
+        if (gameState !== 'stroll') { return }
        forceStopFlag.current = false   
        setTrainSpeed(newValue) 
     };
 
-
     const handleControlBoardClick = (questionMode) => {
         const distanceValue = parseInt(distanceRef.current);
-
 
         if (questionMode === 'OwnQuestion') {
             setGameState('input')
             setOldTrainSpeed(trainSpeed)
             setTrainSpeed(0)   
-            const ownQuestion = 6 + distanceValue
-            setOwnQuestionPosition(ownQuestion)
-
-
-
-
-            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, '', null, null, ownQuestion);
+            const locationID = 0.1 + pivotDistanceToSign + parseInt(distanceRef.current)
+            setLocationID(locationID)
+            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, '', null, null, locationID);
             setSceneItems(tempDict)
-
         }
         else {
-
-            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, 5, 1 + distanceValue)
+            setGameState('stroll')
+            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, signSpacing, distanceToFirstSign + distanceValue)
             upDateUseRefs(finalSignLocation)
             setSceneItems(tempDict)
         }
-
-        
+  
     };
 
-    const handleSubmitTextEntry = (ownQuestion) => {
-        writeOwnQuestionAndGo(ownQuestion, ownQuestionPosition)
-    }
-
     const handleMouseWheelScroll = (event) => {
-        const scrollDirection = Math.sign(event.deltaY) 
+        if (gameState !== 'stroll') { return }
+     
         if (event.deltaY < 0 && trainSpeed < 4) {             
             setTrainSpeed((prevSpeed) => prevSpeed + 1);
             setOldTrainSpeed(trainSpeed + 1)         
@@ -90,10 +72,8 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, writeOwnQues
             setTrainSpeed((prevSpeed) => prevSpeed - 1);
             setOldTrainSpeed(trainSpeed - 1)
         }
-        console.log('Mouse wheel scrolled', scrollDirection);
+         
     };
-
-
 
     const buttonConfig = [
         {
@@ -150,16 +130,7 @@ const TrainControlBlock = ({ upDateUseRefs, distanceRef, gameState, writeOwnQues
                 >
                     {config.text}
                 </Button>
-            ))}
-             
-            
-              
-
-
-            {gameState === 'input' && <TextInputBlock
-                handleSubmitTextEntry={handleSubmitTextEntry}
-            />
-            }                              
+            ))}                                                                
         </div>
     );
 };

@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\backend"
   ],
-  "SelectedNode": "\\vite.config.js",
+  "SelectedNode": "\\backend\\chat_gpt_data_generation.py",
   "PreviewInSolutionExplorer": false
 }

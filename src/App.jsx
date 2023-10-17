@@ -4,14 +4,12 @@ import { Canvas, useFrame } from '@react-three/fiber';
 
  
 
-import { PerspectiveCamera, OrbitControls, Stars } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 
 
 import * as THREE from 'three';
 
- 
-import { useDispatch, useSelector } from 'react-redux';
-import { newGameMode } from './reducers/knowledgeExpressSlice';
+
 
 import { getQandA } from './hooks/getQandA';
 //import { getMockQandA } from './hooks/getMockQandA';
@@ -19,14 +17,11 @@ import { getQandA } from './hooks/getQandA';
 import { Grid, Button, Box } from '@mui/material'; // use MUI component library
 
 
-import THREECubeBlock from './components/THREECubeBlock';
+ 
 import THREERailroadBlock from './components/THREERailroadBlock';
 import TrainControlBlock from './components/TrainControlBlock';
-
-
 import TextInputBlock from './components/TextInputBlock';
-
-import THREESignBlock from './components/THREESignBlock';
+ 
 import THREESignBlockCustomRerender from './components/THREESignBlockCustomRerender';
  
 import { addWhatToDict, composeDict } from './utilities/generateSignsPerButtonClick';
@@ -38,12 +33,7 @@ const App = () => {
 
 
 
-
-    
-    const gameMode = useSelector((state) => state.counter[0].gameMode); // 'intro' vs 'practice' vs 'quiz' vs 'finish'
-
-    const dispatch = useDispatch();
-
+     
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -53,19 +43,20 @@ const App = () => {
     
     const [trainSpeed, setTrainSpeed] = useState(1);
     const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
-    const stopDistanceBeforeLastSign = 6;
+
+    const [locationID, setLocationID] = useState(); // location of own text entry sign
+
+
      
+    const pivotDistanceToSign = 9; 
 
-    const followupQuestionOffset = 4
-
-    const answerFinalDistance = 6
+    const distanceToFirstSign = 5;
+    const signSpacing = 1; 
 
 
     const renderingHorizon = 40; // distance of rending along the future path
 
     const distanceRef = useRef(0); // distance travelled
-    //const speedRef = useRef(1); // speed
-    const stopAt = useRef(Infinity); // sign at distance that forces us to stop
      
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
 
@@ -74,30 +65,37 @@ const App = () => {
      
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls 
     
-     
-
+    
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
 
      
     const { questionAnswerData, loaded, error } = getQandA(cloudFunctionURL, thisQuestion); // thisQuestion
 
-    console.log(gameState, loaded)
+    
     
     if (loaded && gameState === 'questionSelected') {
         console.log('addAnswer')
         setGameState('showAnswerSign')
         const newSceneItems = { };
-        newSceneItems[parseInt(distanceRef.current) + answerFinalDistance] = addWhatToDict('Answer', questionAnswerData['answer'])                      
+        newSceneItems[parseInt(distanceRef.current) + 40] = addWhatToDict('Answer', questionAnswerData['answer'])                      
         setSceneItems(newSceneItems)
     }
 
+
+
+
+
+
+ 
     const upDateUseRefs = (finalSignLocation) => {          
         finalSignAt.current = finalSignLocation     
     }
   
     const handleCanvasClick = () => {  // clicking empty part of canvas unselects
+         
+
         if (gameState === 'stroll') {
-        // empty canvas click can serve three different purposes
+        // empty canvas click can mean three different purposes
 
             if (activeSignIDRef.current > 0) { // sign has been selected once
                 setTimeout(() => {
@@ -108,14 +106,11 @@ const App = () => {
             if (forceStopFlag.current) { // sign has stopped the train
                 backToMotionAfterForcedStop() // back to motion
                 return
-            }      
-            else if (activeSignIDRef.current < 0) { //nothing is going on
-                forceStopFlag.current = true // stop the train
-            } 
-                    
+            }                         
         }    
         if (gameState === 'input') {
             setGameState('stroll')
+            setTrainSpeed(oldTrainSpeed)
             setSceneItems({})
         }
 
@@ -154,7 +149,7 @@ const App = () => {
     };
 
     const addWaitmessages = (sceneItemsForNow) => {
-        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 30, 5, 2 + distanceRef.current)
+        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 30, signSpacing, distanceToFirstSign + distanceRef.current)
         const newSceneItems = Object.assign({}, waitingSignDict, sceneItemsForNow);
          
         return newSceneItems
@@ -164,34 +159,27 @@ const App = () => {
 
     const showFollowUpQuestions = () => {
         setGameState('stroll')
+        console.log('showFollowUpQuestions', forceStopFlag.current, oldTrainSpeed, trainSpeed)
+        //setTrainSpeed(oldTrainSpeed)
         const answerSign = { ...sceneItems };
-        const [newSceneItems, firstItemAt, finalSignLocation] = composeDict('QuestionDict', questionAnswerData, 2, 5, followupQuestionOffset + distanceRef.current)
+        const [newSceneItems, firstItemAt, finalSignLocation] = composeDict('QuestionDict', questionAnswerData, 2, signSpacing, distanceToFirstSign + distanceRef.current)
         upDateUseRefs(finalSignLocation)
         const newSceneItems2 = Object.assign({}, answerSign, newSceneItems);
         setSceneItems(newSceneItems2)
     }
 
-    const openTextEntry = () => {
-   
-        
-
-    }
-    const writeOwnQuestionAndGo = (ownQuestion, locationID) => {
-         
+    
+    const writeOwnQuestionAndGo = (ownQuestion) => {
         setTrainSpeed(oldTrainSpeed)
         setThisQuestion(ownQuestion)
         setGameState('questionSelected');
-
         const ownQuestionItem = sceneItems
-        ownQuestionItem[locationID]['signText'] = ownQuestion
-     
+        ownQuestionItem[locationID]['signText'] = ownQuestion   
         const newSceneItems = addWaitmessages(ownQuestionItem)
         setSceneItems(newSceneItems)
 
     }
-    
-
-     
+       
     const LocomotionAnimation = () => {
         
         camera.position.set(0, 2, distanceRef.current);
@@ -202,7 +190,7 @@ const App = () => {
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
             //console.log(forceStopFlag.current)
-            if (distanceRef.current >= finalSignAt.current - stopDistanceBeforeLastSign) {
+            if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign) {
                 forceStopFlag.current=true              
             }
             if (forceStopFlag.current && trainSpeed > 0) {
@@ -226,8 +214,7 @@ const App = () => {
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[0, 10, 0]} intensity={0.5}/>
                     <Stars />     
-
-                    
+                   
                     <THREERailroadBlock distanceRef={distanceRef}/>
                      
                     {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
@@ -238,7 +225,7 @@ const App = () => {
                             width={value.width}
                             height={value.height}
                             signText={value.signText}
-                            ownQuestionSign={value.ownQuestionSign}
+                            ownQuestionSign={value.ownQuestionSign}                          
                             startingSignState={value.startingSignState}
                             answerSign={value.answerSign}
                             clickable={value.clickable}
@@ -246,6 +233,7 @@ const App = () => {
                             distanceRef={distanceRef}
                             activeSignIDRef={activeSignIDRef}
                             forceStopFlag={forceStopFlag}
+                            pivotDistanceToSign={pivotDistanceToSign}
                             handleAskQuestionRequest={handleAskQuestionRequest}
                             handleActiveSignClick={handleActiveSignClick}
                             showFollowUpQuestions={showFollowUpQuestions}
@@ -264,14 +252,20 @@ const App = () => {
                     setGameState={setGameState}
                     setSceneItems={setSceneItems}
                     setTrainSpeed={setTrainSpeed}
+                    pivotDistanceToSign={pivotDistanceToSign}
+                    distanceToFirstSign={distanceToFirstSign}
+                    signSpacing={signSpacing}
                     trainSpeed={trainSpeed}
+                    setLocationID={setLocationID}
                     setOldTrainSpeed={setOldTrainSpeed}
                     forceStopFlag={forceStopFlag}
-                    writeOwnQuestionAndGo={writeOwnQuestionAndGo}
-                    backToMotionAfterForcedStop={backToMotionAfterForcedStop}
-                    openTextEntry={openTextEntry}
-                    />
-           
+                />
+
+            {gameState === 'input' && <TextInputBlock
+                handleSubmitTextEntry={writeOwnQuestionAndGo}
+            />
+            }  
+
                       
         </Box>                      
     );
