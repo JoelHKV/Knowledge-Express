@@ -28,8 +28,8 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             textLen = 340
         }
 
-        const signHeight = Math.pow(textLen, 1 / 2.5) / 2.2;
-        const signWidth = Math.pow(textLen, 1 / 2.5) / 1.1;
+        const signHeight = 1.1 * Math.pow(textLen, 1 / 2.5) / 1.7;
+        const signWidth = Math.pow(textLen, 1 / 2.5) / 1.6;
 
         let goDownSpeed = 0.001;
 

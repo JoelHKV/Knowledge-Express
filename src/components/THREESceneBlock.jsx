@@ -24,9 +24,10 @@ const THREESceneBlock = ({
     oldTrainSpeed,
     setOldTrainSpeed,
     setTrainSpeed,
+    canvasRef,
 }) => {
 
-    const renderingHorizon = 40; // distance of rending along the future path
+    const renderingHorizon = 80; // distance of rending along the future path
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 
@@ -99,7 +100,7 @@ const THREESceneBlock = ({
 
     return (
         <div className="THREESceneBlock">
-            <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={handleCanvasClick}>
+            <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={handleCanvasClick} ref={canvasRef}>
                 <ambientLight intensity={0.3} />
                 <directionalLight position={[0, 10, 0]} intensity={0.5} />
                 <Stars />

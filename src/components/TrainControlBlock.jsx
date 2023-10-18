@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/system';
 import { Slider, Button, Typography } from '@mui/material';
 
-import { addWhatToDict, composeDict } from '../utilities/generateSignsPerButtonClick';
+import { composeOneEmptySign, composeSignsFromSetArray } from '../utilities/generateSignsPerButtonClick';
 
 
 import './TrainControlBlock.css';
@@ -26,7 +26,7 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
  
-const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag }) => {
+const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag, canvasRef }) => {
       
     useEffect(() => {
        // handleControlBoardClick('OwnQuestion')
@@ -44,17 +44,19 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
         const distanceValue = parseInt(distanceRef.current);
 
         if (questionMode === 'OwnQuestion') {
-            setGameState('input')
+            setGameState('input') // pops out the actual text entry
             setOldTrainSpeed(trainSpeed)
             setTrainSpeed(0)   
             const locationID = 0.1 + pivotDistanceToSign + parseInt(distanceRef.current)
-            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, '', null, null, locationID);
-            delete tempDict[0]
+            const tempDict = composeOneEmptySign(locationID) // creates a 3d sign behind it
             setSceneItems(tempDict)
         }
         else {
             setGameState('stroll')
-            const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, signSpacing, distanceToFirstSign + distanceValue)
+            const positionID = distanceToFirstSign + distanceRef.current
+            const [tempDict, finalSignLocation] = composeSignsFromSetArray(positionID, questionMode, 1, signSpacing, canvasRef)
+
+           // const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, signSpacing, distanceToFirstSign + distanceValue)
             finalSignAt.current = finalSignLocation            
             setSceneItems(tempDict)
         }

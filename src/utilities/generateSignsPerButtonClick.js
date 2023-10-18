@@ -5,131 +5,130 @@ const instructionSigns = ['Welcome onboard to Knowledge Express!',
     'Click WQ or LQ for a quick start or MQ to write your own question!'
 ];
 
-export const composeDict = (signType, textContent, nroItems, spacing, positionOffset) => {
-    const tempDict = {} // init sceneItems dictionary from initial railroad sign
-    let firstLocation
-    let lastLocation
-   // let positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
-
-    if (signType === 'OwnQuestion') {
-        tempDict[positionOffset] = {
-                ownQuestionSign: true,
-                startingSignState: 'selected',
-                answerSign: false,
-                clickable: false,
-                fallable: false,
-                height: 0.5,
-                signText: textContent,
-                width: 0,
-        }
+const waitMessages = ['ChatGPT is thinking.', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
+const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!'
 
 
-
-        firstLocation = null
-        lastLocation = null
-
-    };
-
-
-
-    
-
-    if (signType === 'QuestionDict') {
-        let i = 0; 
-        for (const key in textContent) {
-            if (key.startsWith("q")) {
-                const positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
-                textContent[key]
-                tempDict[positionCounter] = addWhatToDict('NewQuestion', textContent[key], i)
-                if (i === 0) {
-                    firstLocation = positionCounter
-                }
-                 lastLocation = positionCounter
-                i++;
-            }
-             
-             
-        }
-
-    }
-
-    else {
-        if (signType === 'Instructions') {
-            nroItems = instructionSigns.length;
-        }
-        for (let i = 0; i < nroItems; i++) {
-            const positionCounter = spacing * (i + 1) + parseInt(positionOffset, 10)
-            tempDict[positionCounter] = addWhatToDict(signType, textContent, i)
-            if (i === 0) {
-                firstLocation = positionCounter
-            }
-            if (i === nroItems - 1) {
-                lastLocation = positionCounter
-            }
-        }
-    }
-    if (signType !== 'Instructions' && signType !== 'WaitMessages' && signType !== 'ownQuestion') {
-        const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!' 
-        lastLocation += spacing
-        tempDict[lastLocation] = addWhatToDict('endMessage', finalSignText)
-    }
-
-    return [tempDict, firstLocation, lastLocation]
+export const composeOneEmptySign = (positionID) => {
+    const tempDict = {}
+    tempDict[positionID] = addWhatToDict('OwnQuestion')  
+    return tempDict
 }
 
-export const addWhatToDict = (signType, textContent, itemNro) => {
+export const composeAnswerSign = (positionID, answerText) => {
+    const tempDict = {}
+    positionID = Math.ceil(positionID)
+    tempDict[positionID] = addWhatToDict('Answer', answerText)    
+    return tempDict
+}
+
+export const composeSignsFromQuestionsDict = (positionID, questionDict, nroRepeat, spacing, canvasRef) => {
+    console.log(canvasRef.current.offsetWidth)
+    const tempDict = {}
+    positionID = Math.ceil(positionID)
+    for (var i = 0; i < nroRepeat; i++) {
+        for (const key in questionDict) {
+            if (key.startsWith("q")) {
+                tempDict[positionID] = addWhatToDict('RegularQuestion', questionDict[key], canvasRef)
+                positionID = positionID + spacing
+            }
+        }
+    }
+    console.log(tempDict)
+    tempDict[positionID] = addWhatToDict('endMessage', finalSignText)
+    return [tempDict, positionID]
+    
+}
+
+export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spacing, canvasRef) => {
+    console.log(canvasRef.current.offsetWidth)
+    const tempDict = {}
+    positionID = Math.ceil(positionID)
+    let signArray
+    
+    let signtype
+    if (arrayName === 'Instructions') {
+        signArray = instructionSigns
+        signtype = 'GameInfo'
+    }
+    if (arrayName === 'WaitMessages') {
+        signArray = waitMessages
+        signtype = 'GameInfo'
+    }
+    if (arrayName === 'WorldQuestion') {
+        signArray = worldQuestions
+        signtype = 'RegularQuestion'
+    }
+    if (arrayName === 'LifeQuestion') {
+        signArray = lifeQuestions
+        signtype = 'RegularQuestion'
+    }
+
+    for (var i = 0; i < nroRepeat; i++) {
+
+        for (const item in signArray) {          
+            tempDict[positionID] = addWhatToDict(signtype, signArray[item], canvasRef)
+            positionID = positionID + spacing           
+        }
+
+    }
+
+    if (signtype === 'RegularQuestion') {
+        tempDict[positionID] = addWhatToDict('endMessage', finalSignText)
+        positionID = positionID + spacing
+    }
+    
+    return [tempDict, positionID - spacing]
+}
+
+
+const addWhatToDict = (signType, textContent, canvasRef) => {
    
-    let thisQuestion
-
-    const waitMessages = ['ChatGPT is thinking.', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
-
-
-    if (signType === 'WorldQuestion') {
+    let maxWidth = 4;
+    if (canvasRef) {
+        maxWidth = canvasRef.current.offsetWidth/250
+    }
+ 
+    if (signType === 'OwnQuestion') {
         return {
-            width: getRandomNumber(-4, 4),
+            ownQuestionSign: true,
+            startingSignState: 'selected',
+            answerSign: false,
+            clickable: false,
+            fallable: false,
+            height: 0.5,
+            signText: '',
+            width: 0,
+        };
+
+    }
+
+    if (signType === 'RegularQuestion') {
+        return {
+            width: getRandomNumber(-maxWidth, maxWidth),
             height: 1.5,
-            signText: worldQuestions[getRandomNumber(0, worldQuestions.length - 1)],
+            signText: textContent,
             answerSign: false,           
             clickable: true,
             fallable: true,
         };
     }
-    if (signType === 'LifeQuestion') {
-        return {
-            width: getRandomNumber(-4, 4),
-            height: 1.5,
-            signText: lifeQuestions[getRandomNumber(0, lifeQuestions.length - 1)],
-            answerSign: false,           
-            clickable: true,
-            fallable: true,
-        };
-    }
-    if (signType === 'Instructions') {
-        return {
-            width: getRandomNumber(-4, 4),
-            height: 1.5,
-            signText: instructionSigns[itemNro],
-            answerSign: false,      
-            clickable: false,
-            fallable: true,
-        };
-    }
 
-    if (signType === 'WaitMessages') {
-        thisQuestion = waitMessages[getRandomNumber(0, waitMessages.length - 1)]
+    if (signType === 'GameInfo') {
         return {
-            width: Math.sign((Math.random()-0.5)) * getRandomNumber(4, 8),
-            height: 1,
-            signText: thisQuestion,
-            answerSign: false,    
+            width: getRandomNumber(-maxWidth, maxWidth),
+            height: 1.5,
+            signText: textContent,
+            answerSign: false,
             clickable: false,
             fallable: true,
-        }; 
+        };
     }
+  
     if (signType === 'endMessage') {
-        thisQuestion = textContent
+      //  thisQuestion = textContent
         return {
-            width: getRandomNumber(0, 0),
+            width: 0,
             height: 0.5,
             signText: textContent,
             answerSign: false,         
@@ -140,33 +139,18 @@ export const addWhatToDict = (signType, textContent, itemNro) => {
 
 
     if (signType === 'Answer') {
-        thisQuestion = textContent
+      //  thisQuestion = textContent
         return {
             width: 0,
             height: 0.5,
             signText: textContent,
-            answerSign: true,
-      
-            clickable: true,
-            fallable: true,
-        };
-    }
-
-    if (signType === 'NewQuestion') {
-        return {
-            width: getRandomNumber(-4, 4),
-            height: 1.5,
-            signText: textContent,
-            answerSign: false,
-         
+            answerSign: true,     
             clickable: true,
             fallable: true,
         };
     }
 
 }
-
-
 
 const getRandomNumber = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;

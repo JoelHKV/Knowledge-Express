@@ -9,7 +9,7 @@ import THREESceneBlock from './components/THREESceneBlock';
 import TrainControlBlock from './components/TrainControlBlock';
 import TextInputBlock from './components/TextInputBlock';
  
-import { addWhatToDict, composeDict } from './utilities/generateSignsPerButtonClick';
+import { composeSignsFromQuestionsDict, composeSignsFromSetArray, composeAnswerSign } from './utilities/generateSignsPerButtonClick';
  
 import './App.css'; 
 
@@ -29,20 +29,22 @@ const App = () => {
     const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
     const forceStopFlag = useRef(false);
+
+    const canvasRef = useRef(null);
  
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
  
     const { questionAnswerData, loaded, error } = fetchQandA(cloudFunctionURL, thisQuestion); // fetch real data from the API
     //const { questionAnswerData, loaded, error } = fetchMockQandA(cloudFunctionURL, thisQuestion); // mimic fetch and generate mock data
 
-
+     
 
 
     if (loaded && gameState === 'questionSelected') {
-        console.log('addAnswer')
         setGameState('showAnswerSign')
-        const newSceneItems = { };
-        newSceneItems[parseInt(distanceRef.current) + 40] = addWhatToDict('Answer', questionAnswerData['answer'])                      
+        //const newSceneItems = {};
+        const positionID = 40 + distanceRef.current
+        const newSceneItems = composeAnswerSign(positionID, questionAnswerData['answer'])
         setSceneItems(newSceneItems)
     }
 
@@ -57,7 +59,8 @@ const App = () => {
     };
 
     const addWaitmessages = (sceneItemsForNow) => {
-        const [waitingSignDict, firstItemAt, lastItemAt] = composeDict('WaitMessages', null, 30, signSpacing, distanceToFirstSign + distanceRef.current)
+        const positionID = distanceToFirstSign + distanceRef.current
+        const [waitingSignDict] = composeSignsFromSetArray(positionID, 'WaitMessages', 1, signSpacing, canvasRef)
         const newSceneItems = Object.assign({}, waitingSignDict, sceneItemsForNow);       
         return newSceneItems
     }
@@ -65,7 +68,8 @@ const App = () => {
     const showFollowUpQuestions = () => {
         setGameState('stroll')
         const answerSign = { ...sceneItems };
-        const [newSceneItems, firstItemAt, finalSignLocation] = composeDict('QuestionDict', questionAnswerData, 2, signSpacing, distanceToFirstSign + distanceRef.current)
+        const positionID = distanceToFirstSign + distanceRef.current
+        const [newSceneItems, finalSignLocation] = composeSignsFromQuestionsDict(positionID, questionAnswerData, 2, signSpacing, canvasRef)
         finalSignAt.current = finalSignLocation         
         const newSceneItems2 = Object.assign({}, answerSign, newSceneItems);
         setSceneItems(newSceneItems2)
@@ -88,7 +92,7 @@ const App = () => {
                 setTrainSpeed={setTrainSpeed}
                 oldTrainSpeed={oldTrainSpeed}
                 setOldTrainSpeed={setOldTrainSpeed}
-                 
+                canvasRef={canvasRef} 
             />
             <TrainControlBlock                   
                 distanceRef={distanceRef}
@@ -103,6 +107,7 @@ const App = () => {
                 trainSpeed={trainSpeed}
                 setOldTrainSpeed={setOldTrainSpeed}
                 forceStopFlag={forceStopFlag}
+                canvasRef={canvasRef}
             />
             {gameState === 'input' &&
                 <TextInputBlock
