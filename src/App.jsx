@@ -22,9 +22,9 @@ const App = () => {
     const [trainSpeed, setTrainSpeed] = useState(1);
     const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
 
-    const pivotDistanceToSign = 9; 
-    const distanceToFirstSign = 5;
-    const signSpacing = 4; 
+    const pivotDistanceToSign = 6; 
+    const distanceToFirstSign = 10;
+    const signSpacing = 5; 
 
     const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input

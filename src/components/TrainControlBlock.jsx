@@ -30,7 +30,10 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
       
     useEffect(() => {
        // handleControlBoardClick('OwnQuestion')
-         handleControlBoardClick('WorldQuestion') 
+        setTimeout(function () {
+            handleControlBoardClick('WorldQuestion') 
+        }, 500);
+        // handleControlBoardClick('WorldQuestion') 
        // handleControlBoardClick('Instructions')
     }, []);
   
@@ -77,6 +80,11 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
          
     };
 
+    const handleMouseClick = (event) => {
+        console.log('SS')
+    }
+
+
     const buttonConfig = [
         {
             text: 'WQ',
@@ -97,15 +105,16 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
     ];
    
     return (
-        <div className="TrainControlBlock" onWheel={handleMouseWheelScroll}>  
-            <div className="controlboardtop"></div>
-            <div className="controlboard"></div>
-
-
+        <div className="TrainControlBlock" onClick={handleMouseClick} onWheel={handleMouseWheelScroll}>  
+         
+         
+            <div className="TitleBoard"></div>
             <Typography className='AppTitleText' variant="h3">
                 Knowledge Express
             </Typography>
 
+            <div className="ControlBoard"></div>
+           
 
 
             <div>

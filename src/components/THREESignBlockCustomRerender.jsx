@@ -24,14 +24,23 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
          
 
         let textLen = signText.length;
-        if (ownQuestionSign) {
-            textLen = 340
+       // if (ownQuestionSign) {
+       //     textLen = 180
+       // }
+
+        let fontSize = 0.4
+
+        let signHeight = 1.1 * Math.pow(textLen, 1 / 2.5) / 1.9;
+        let signWidth = Math.pow(textLen, 1 / 2.5) / 1.5;
+        if (ownQuestionSign || answerSign) {
+            signHeight = 4.5
+            signWidth = 5
+            //fontSize = 0.6 - textLen/1500
+            console.log(textLen)
         }
 
-        const signHeight = 1.1 * Math.pow(textLen, 1 / 2.5) / 1.7;
-        const signWidth = Math.pow(textLen, 1 / 2.5) / 1.6;
 
-        let goDownSpeed = 0.001;
+        let goDownSpeed  
 
         const distanceNumber = parseFloat(distance);
         const trainToSignGap = distance - distanceRef.current
@@ -41,9 +50,10 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const flipSign = useRef(false)
         let answerSignStart =  50
         let flyawaySpeed = 0.04;
-        const answerSignEnd = pivotDistanceToSign
+        const answerSignEnd = pivotDistanceToSign + 0;
         const zPosition = answerSign ? answerSignStart + distanceNumber : distanceNumber;
 
+        let prevPos
              
         let startState = 'basic';
 
@@ -54,7 +64,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         const [signState, setSignState] = useState(startState);
         const signColorMapping = {
-            'basic': 'green', // normal starting sign that is ready to go down
+            'basic': "#cc00cc", // normal starting sign that is ready to go down
             'active': 'red', // once clicked sign can stop the trsin
             'selected': 'white', // selected as the question, proceeds to render signs
             'hasStoppedTrain': 'yellow', // stopped train but can go down if user wants
@@ -62,16 +72,22 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
 
         let signBorderColor = signColorMapping[signState]
 
+        if (answerSign) {
+            signBorderColor = 'white'
+        }
+
+
         useFrame(() => {
             if (initRef.current) {
                 meshRef.current.position.z = zPosition;
                 meshRef.current.position.x = width;
                 initRef.current = false
             }
-
+         
             if (fallable && !answerSign && distance - distanceRef.current - pivotDistanceToSign < -0.1 && meshRef.current.rotation.x ===0) {
                 if (signState === 'basic') {
                     flipSign.current = true
+                    goDownSpeed = 1 * (distanceRef.current - prevPos)
                 }
                 if (signState === 'hasStoppedTrain' && !forceStopFlag.current) {
                     flipSign.current = true
@@ -84,10 +100,11 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             } 
 
             if (flipSign.current) {
-                meshRef.current.rotation.x += goDownSpeed;
+                meshRef.current.rotation.x += goDownSpeed// parseFloat(distanceRef.current - flipPos);
                 goDownSpeed = 1.05 * goDownSpeed;
 
                 if (meshRef.current.rotation.x > Math.PI / 2) {
+                    meshRef.current.rotation.x = 1.04 * Math.PI / 2
                     flipSign.current = false
                 }
             }
@@ -105,23 +122,24 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 setSignState('basic')
             }
                       
-            if (signState === 'selected') { // && !immune && !fallable
+            if (signState === 'selected') {  
             
                 meshRef.current.position.z = trainToSignGap + distanceRef.current
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
                
             }
-            if (answerSign) { //!immune && !fallable
+            if (answerSign) {  
                 
                 answerSignStart = 0.96 * answerSignStart
                 let dist = answerSignStart + answerSignEnd               
                 meshRef.current.position.z = distanceRef.current + dist  
                  
-                 
+               // meshRef.current.position.y -=0.01
 
                 meshRef.current.position.x = 0.985 * meshRef.current.position.x
                 
             }
+            prevPos = distanceRef.current;
         });
 
         const signPosition = [0, height + signHeight / 2, 0];
@@ -155,10 +173,10 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 <group ref={meshRef} onClick={(e) => handleSignClick(e)}>
                     <mesh position={signPosition}>
                         <boxGeometry args={[signWidth, signHeight, 0.2]} />
-                        <meshStandardMaterial color="red" />
+                        <meshStandardMaterial color="#880088" />
                     </mesh>
                     <mesh position={signPosition}>
-                        <boxGeometry args={[signWidth + 0.5, signHeight + 0.5, 0.18]} />
+                        <boxGeometry args={[signWidth + 0.25, signHeight + 0.25, 0.18]} />
                         <meshStandardMaterial color={signBorderColor} />
                     </mesh>
 
@@ -166,11 +184,11 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                         <>
                             <mesh position={rightPolePositon}>
                                 <cylinderGeometry args={[0.25, 0.25, height]} />
-                                <meshStandardMaterial color="gray" />
+                                <meshStandardMaterial color="#555" />
                             </mesh>
                             <mesh position={leftPolePosition}>
                                 <cylinderGeometry args={[0.25, 0.25, height]} />
-                                <meshStandardMaterial color="gray" />
+                                <meshStandardMaterial color="#555" />
                             </mesh>
                         </>
                     ) : null}
@@ -182,7 +200,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                         position={textPosition}
                         rotation={[Math.PI, 0, Math.PI]}
                         maxWidth={0.86 * signWidth}
-                        fontSize={0.4}
+                        fontSize={fontSize}
                     >
                         {signText}
                     </Text>

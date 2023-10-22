@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -30,7 +30,7 @@ const THREESceneBlock = ({
     const renderingHorizon = 80; // distance of rending along the future path
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-
+    const spotLightRef = useRef(null);
     const activeSignIDRef = useRef(-1)
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls
 
@@ -74,6 +74,8 @@ const THREESceneBlock = ({
     const LocomotionAnimation = () => {
 
         camera.position.set(0, 2, distanceRef.current);
+        
+
         camera.lookAt(0, 2, distanceRef.current + 1);
         let timeStamp = Date.now()
 
@@ -81,6 +83,13 @@ const THREESceneBlock = ({
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
             //console.log(forceStopFlag.current)
+
+           // spotLightRef.current.position.z = distanceRef.current + 20
+            spotlight.position.z = distanceRef.current + 1
+            
+
+            //spotLightRef.current.lookAt.z = 1;
+
             if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign) {
                 forceStopFlag.current = true
             }
@@ -98,13 +107,33 @@ const THREESceneBlock = ({
         return null;
     };
 
+     
+  
+    const targetElementRef = useRef();
+   // const targetPosition = new THREE.Vector3(0, 2, 100);
+    //const spotlightTarget = new THREE.Object3D();
+    //spotlightTarget.position.copy(targetPosition);
+
+    const spotlight = useMemo(() => new THREE.SpotLight('#fff'), []);
+
     return (
         <div className="THREESceneBlock">
             <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={handleCanvasClick} ref={canvasRef}>
-                <ambientLight intensity={0.3} />
-                <directionalLight position={[0, 10, 0]} intensity={0.5} />
+                <ambientLight intensity={0.2} />
+                <group>
+                     <primitive
+                        object={spotlight}
+                        position={[0, 1, 0]}
+                        intensity={61.5}
+                        penumbra={0}
+                    />
+                    <primitive object={spotlight.target} position={[0, 1e9/1.5, 1e9]} />
+                </group>
                 <Stars />
-                <THREERailroadBlock distanceRef={distanceRef} />
+                <THREERailroadBlock
+                    distanceRef={distanceRef}
+                    canvasRef={canvasRef} 
+                />
 
                 {sceneItems && Object.entries(sceneItems).map(([key, value]) => ( // SIGNS
                     (key > distanceRef.current && key < distanceRef.current + renderingHorizon &&

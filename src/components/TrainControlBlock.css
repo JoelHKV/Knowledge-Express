@@ -3,6 +3,7 @@
     width: 100%;
     height: 100%;
     z-index: 1;
+   
     pointer-events: none;
     /* Set border-bottom-left-radius and border-bottom-right-radius to 0 to keep the bottom corners square */
 }
@@ -10,19 +11,21 @@
 
 .AppTitleText {
     position: relative;
-    top: 88%;
+    top: 1%;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: black;
-    
+    color: #880088;
+    font-weight: 500 !important;
+    -webkit-text-stroke: 0.1rem black;
+    z-index: 2;
 }
 
 .TrainControlBlockSpeedSlider {
     position: absolute;
-    top: 76%;
+    top: 81%;
     left: 0;
-    height: 20%;
+    height: 15%;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -43,9 +46,10 @@
     border: 5px solid black !important;
     font-size: 1.5rem !important;
     pointer-events: auto;
+    background-color: #880088 !important;
 }
 .TrainControlBlockWorldQuestionButton {
-    top: 80%; /* Adjust the top position for each button */
+    top: 87%; /* Adjust the top position for each button */
     left: 70% !important;
 }
 
@@ -55,7 +59,7 @@
 }
 
 .TrainControlBlockOwnQuestionButton {
-    top: 80%;
+    top: 87%;
     left: 30% !important;
 }
 
@@ -66,26 +70,39 @@
 
 
 
-
-.controlboard {
-   
+.ControlBoard {
     position: absolute;
+    top: 77%;
+    left: calc(-5% - 0.5rem);
+    width: 110%;
+    height: calc(40% - 1rem);
+    border-radius: 100%;
+    background-color: #666;
+    overflow: hidden;
+    z-index: 0;
+    clip-path: polygon(calc(4.55% + 0.4rem) 0, calc(95.45% - 0.4rem) 0, calc(95.45% - 0.4rem) 58%, calc(4.55% + 0.4rem) 58%);
+    border: solid black 0.5rem;
+}
+
+
+.TitleBoard {
+    position: absolute;
+    top: -28%;
+    left: calc(-50% - 0.5rem);
+    width: 200%;
+    height: calc(40% - 1rem);
+    border-radius: 100%;
+    background-color: #666;
+    overflow: hidden;
+    z-index: 1;
+    clip-path: polygon(calc(25% + 0.4rem) 60%, calc(75% - 0.4rem) 60%, calc(75% - 0.4rem) 100%, calc(25% + 0.4rem) 100%);
+    border: solid black 0.5rem;
+}
+    
+
+
+
  
-    width: 100%; /* 100% width of the parent */
-    height: 100%; /* 100% height of the parent */
-    clip-path: polygon(0 100%, 0% 90%,30% 72%, 70% 72%, 100% 90%, 100% 100%, 0 100%);
-    background-color: gray;
-      
-}
-
-.controlboardtop {
-     
-    position: absolute;
-    width: 100%; /* 100% width of the parent */
-    height: 98.5%; /* 100% height of the parent */
-    clip-path: polygon(0 100%, 0% 90%,30% 72%, 70% 72%, 100% 90%, 100% 100%, 0 100%);
-    background-color: black;
-}
 
 
 

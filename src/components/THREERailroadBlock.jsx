@@ -1,26 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFrame  } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 
-const THREERailroadBlock = ({  distanceRef }) => {
+const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
 
     console.log('rerender railroad ')
     const hopDistance = 12;
     const meshRef = useRef();
     const [decorItems, setDecorItems] = useState(); 
- 
+
+  
+
+
     
     useEffect(() => {
       
-        const decorItemCount = 20;
+        const decorItemCount = 1;
         const decorItemInit = [];
      
         for (let i = 0; i < decorItemCount; i++) {        
             decorItemInit.push({
                 key: i,
-                x: Math.sign(Math.random() - 0.5) * (3 + 20 * Math.random()),
-                y: -0.2,
-                z: 70 * Math.random(), // Initial X position
-                rot: 2 * Math.PI * Math.random(),
+                x: getMilestoneWidth(),
+                y: 1,
+                z: 10, // Initial X position
+                rot: 0,
                  
            });
             
@@ -30,17 +34,26 @@ const THREERailroadBlock = ({  distanceRef }) => {
     }, []);
 
 
+    const getMilestoneWidth = () => {
+        let milestoneWidth = 5;
+        if (canvasRef) {
+            milestoneWidth = 0.5 + 1.5 * canvasRef.current.offsetWidth / 250
+        }
+        return milestoneWidth
+    }
+
+
     const RailRoadAnimation = () => {
         useFrame(() => {
             if (distanceRef.current - meshRef.current.position.z > hopDistance) {
                 // Move the railroad block
                 meshRef.current.position.z += hopDistance;
 
-  
+                const milestoneWidth = getMilestoneWidth()
                 const updatedDecorItems = decorItems.map((item) => {
                     if (item.z < meshRef.current.position.z) {
                         item.z += 50;
-                        
+                        item.x = milestoneWidth
                     }
                     return item; // You need to return a value from the map function even if you don't use it
                      
@@ -59,12 +72,12 @@ const THREERailroadBlock = ({  distanceRef }) => {
             <group ref={meshRef}  >               
                 <mesh position={[0, -0.05, 40]} rotation={[0, 0, 0]}>
                     <boxGeometry args={[140, 0.1, 80]} />   
-                    <meshStandardMaterial color="#55aa33" />
+                    <meshStandardMaterial color="#D2B48C" />
                 </mesh>
                 {Array.from({ length: 2 }).map((_, index) => ( // RAILS
                     <mesh key={index} position={[-1 + index * 2, 0.05,  40]} rotation={[0, 0, 0]}>
                         <boxGeometry args={[0.2, 0.2, 80]} />  
-                        <meshStandardMaterial color="#222222" />
+                        <meshStandardMaterial color="#444444" />
                     </mesh>
                 ))}
             
@@ -90,9 +103,36 @@ const THREERailroadBlock = ({  distanceRef }) => {
                     position={[item.x, item.y, item.z]}
                     rotation={[0, 0, 0]}
                 >
-                    <boxGeometry args={[1, 1, 1]} />
+                    <boxGeometry args={[1, 2, 1]} />
                     <meshStandardMaterial color="black" />
-                </mesh>               
+
+                    <Text
+                        color="white"
+                        anchorX="center"
+                        anchorY="middle"
+                        position={[-0.1, 0.4, -0.55]}
+                        rotation={[Math.PI, 0, Math.PI]}
+                        maxWidth={1}
+                        fontSize={0.4}
+                    >
+                        {Math.round(item.z / 50)}
+                    </Text>
+                    <Text
+                        color="white"
+                        anchorX="center"
+                        anchorY="middle"
+                        position={[-0.1, 0, -0.55]}
+                        rotation={[Math.PI, 0, Math.PI]}
+                        maxWidth={1}
+                        fontSize={0.4}
+                    >
+                        {'km'}
+                    </Text>
+
+                </mesh>     
+
+
+
             ))}
                         
         </>

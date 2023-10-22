@@ -14,6 +14,8 @@
     user-select: none;
     border: solid black 0.5rem;
     height: 96vh;
+    border-radius: 1rem;
+    overflow: hidden;
 }
 
 
@@ -22,7 +24,17 @@ html {
     font-size: 20px; /* Set the root font size */
 }
 
- 
+@media screen and (max-width: 800px) {
+    html {
+        font-size: 18px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    html {
+        font-size: 15px;
+    }
+}
  
 
 
