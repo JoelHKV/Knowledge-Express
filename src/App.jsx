@@ -49,6 +49,7 @@ const App = () => {
     }
 
     const handleAskQuestionRequest = (whichSign) => {
+      
         setThisQuestion(sceneItems[whichSign]['signText']) // this triggers API request from a custom hook
         setGameState('questionSelected'); 
         const keySignDistance = parseInt(whichSign)
@@ -60,7 +61,7 @@ const App = () => {
 
     const addWaitmessages = (sceneItemsForNow) => {
         const positionID = distanceToFirstSign + distanceRef.current
-        const [waitingSignDict] = composeSignsFromSetArray(positionID, 'WaitMessages', 1, signSpacing, canvasRef)
+        const [waitingSignDict] = composeSignsFromSetArray(positionID, 'WaitMessages', 3, signSpacing, canvasRef)
         const newSceneItems = Object.assign({}, waitingSignDict, sceneItemsForNow);       
         return newSceneItems
     }
@@ -69,7 +70,7 @@ const App = () => {
         setGameState('stroll')
         const answerSign = { ...sceneItems };
         const positionID = distanceToFirstSign + distanceRef.current
-        const [newSceneItems, finalSignLocation] = composeSignsFromQuestionsDict(positionID, questionAnswerData, 2, signSpacing, canvasRef)
+        const [newSceneItems, finalSignLocation] = composeSignsFromQuestionsDict(positionID, questionAnswerData, 3, signSpacing, canvasRef)
         finalSignAt.current = finalSignLocation         
         const newSceneItems2 = Object.assign({}, answerSign, newSceneItems);
         setSceneItems(newSceneItems2)
@@ -105,6 +106,7 @@ const App = () => {
                 distanceToFirstSign={distanceToFirstSign}
                 signSpacing={signSpacing}
                 trainSpeed={trainSpeed}
+                oldTrainSpeed={oldTrainSpeed}
                 setOldTrainSpeed={setOldTrainSpeed}
                 forceStopFlag={forceStopFlag}
                 canvasRef={canvasRef}

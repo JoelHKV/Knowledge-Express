@@ -13,6 +13,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         clickable,
         fallable,  
         distanceRef,
+        canvasRef,
         ownQuestionSign,
         startingSignState,
         answerSign,
@@ -22,22 +23,47 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         pivotDistanceToSign,
     }) => {
          
+        const adjustAnswerSignForMaxDimension = (signHeight, signWidth) => {
+            const canvasWidth = canvasRef.current.offsetWidth
+            let shrinkFactor = 1
+            const maxHeight = 4.5
+            const maxWidth = 1.8 + canvasWidth / 200
+            if (signHeight > maxHeight) {
+                shrinkFactor = shrinkFactor * signHeight / maxHeight
+                signHeight = maxHeight
+            }
+            if (signWidth > maxWidth) {
+                shrinkFactor = shrinkFactor * signWidth / maxWidth
+                signWidth = maxWidth
+            }
+           // fontSize = fontSize / Math.pow(shrinkfactor, 1 / 2.2)
 
-        let textLen = signText.length;
-       // if (ownQuestionSign) {
-       //     textLen = 180
-       // }
+            return [signHeight, signWidth, Math.pow(shrinkFactor, 1 / 2.2)];
+
+        }
+        
+       
 
         let fontSize = 0.4
-
+        let textLen = signText.length;
         let signHeight = 1.1 * Math.pow(textLen, 1 / 2.5) / 1.9;
         let signWidth = Math.pow(textLen, 1 / 2.5) / 1.5;
-        if (ownQuestionSign || answerSign) {
-            signHeight = 4.5
-            signWidth = 5
-            //fontSize = 0.6 - textLen/1500
-            console.log(textLen)
+        let signColor = "#880088"
+        if (answerSign) {
+            signColor = "#552255"                  
+            let fontShrinkFactor
+            [signHeight, signWidth, fontShrinkFactor] = adjustAnswerSignForMaxDimension(signHeight, signWidth);            
+            fontSize = fontSize / fontShrinkFactor;
+       
         }
+        if (ownQuestionSign) {
+            const canvasWidth = canvasRef.current.offsetWidth
+            signHeight = 3.8
+            signWidth = Math.min(5, 2.3 + canvasWidth/300)
+            
+        }
+
+
 
 
         let goDownSpeed  
@@ -91,6 +117,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 }
                 if (signState === 'hasStoppedTrain' && !forceStopFlag.current) {
                     flipSign.current = true
+                    goDownSpeed = 1 * (distanceRef.current - prevPos)
                 }
 
                 if (signState === 'active') {
@@ -143,14 +170,16 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         });
 
         const signPosition = [0, height + signHeight / 2, 0];
-        const textPosition = [0, height + signHeight / 2, -0.15];
+        const textPosition = [-0.05, height + signHeight / 2, -0.12];
+         
         const leftPolePosition = [-0.7 * signWidth / 2, height / 2, 0];
         const rightPolePositon = [+0.7 * signWidth / 2, height / 2, 0];
+
 
         const handleSignClick = (e) => {          
             e.stopPropagation();
 
-            if (!clickable || flipSign.current) {              
+            if ((!clickable && signState !== 'basic') || flipSign.current || signState === 'selected') {              
                 return
             }
             if (answerSign) {
@@ -173,7 +202,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 <group ref={meshRef} onClick={(e) => handleSignClick(e)}>
                     <mesh position={signPosition}>
                         <boxGeometry args={[signWidth, signHeight, 0.2]} />
-                        <meshStandardMaterial color="#880088" />
+                        <meshStandardMaterial color={signColor} />
                     </mesh>
                     <mesh position={signPosition}>
                         <boxGeometry args={[signWidth + 0.25, signHeight + 0.25, 0.18]} />
@@ -199,26 +228,22 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                         anchorY="middle"
                         position={textPosition}
                         rotation={[Math.PI, 0, Math.PI]}
-                        maxWidth={0.86 * signWidth}
+                        maxWidth={signWidth-0.3}
                         fontSize={fontSize}
                     >
                         {signText}
                     </Text>
+                    
                 </group>
             </>
         );
     },
     (prevProps, nextProps) => {
-        // Compare props and return true if you want to skip re-render
+        // Compare props  
         return (
             prevProps.distance === nextProps.distance &&
-          //   prevProps.startingSignState === nextProps.startingSignState &&
-             //   prevProps.width === nextProps.width &&
-            // prevProps.fallable === nextProps.fallable &&
-             prevProps.signText === nextProps.signText  
-           // prevProps.standUpright === nextProps.standUpright &&
-           // prevProps.selectedOnce === nextProps.selectedOnce &&
-          //  prevProps.selectedTwice === nextProps.selectedTwice   
+            prevProps.signText === nextProps.signText  
+    
         );
     }
 );

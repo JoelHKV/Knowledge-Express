@@ -1,5 +1,6 @@
 import { questions } from '../utilities/exampleQuestions';
 const { worldQuestions, lifeQuestions } = questions();
+
 const instructionSigns = [
     'Welcome aboard the Knowledge Express!',
     'If you already know what to do, click MQ, WQ, or LQ to start.',
@@ -33,7 +34,7 @@ const instructionSigns = [
 ];
 
 
-const waitMessages = ['ChatGPT is thinking.', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
+const waitMessages = ['ChatGPT is thinking', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
 const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!'
 
 
@@ -62,14 +63,12 @@ export const composeSignsFromQuestionsDict = (positionID, questionDict, nroRepea
             }
         }
     }
-    console.log(tempDict)
     tempDict[positionID] = addWhatToDict('endMessage', finalSignText)
     return [tempDict, positionID]
     
 }
 
 export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spacing, canvasRef) => {
-    console.log(canvasRef.current.offsetWidth)
     const tempDict = {}
     positionID = Math.ceil(positionID)
     let signArray
@@ -111,7 +110,7 @@ export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spaci
 
 
 const addWhatToDict = (signType, textContent, canvasRef) => {
-   
+    textContent = textContent?.trim();
     let maxWidth = 4;
     if (canvasRef) {
         maxWidth = canvasRef.current.offsetWidth/250
@@ -124,7 +123,7 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
             answerSign: false,
             clickable: false,
             fallable: false,
-            height: 0.2,
+            height: 0.5,
             signText: '',
             width: 0,
         };

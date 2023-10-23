@@ -26,15 +26,13 @@ const CustomSlider = styled(Slider)(({ value }) => ({
 }));
  
  
-const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, setOldTrainSpeed, forceStopFlag, canvasRef }) => {
+const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, setTrainSpeed, oldTrainSpeed, setOldTrainSpeed, forceStopFlag, canvasRef }) => {
       
     useEffect(() => {
-       // handleControlBoardClick('OwnQuestion')
         setTimeout(function () {
-            handleControlBoardClick('WorldQuestion') 
+            handleControlBoardClick('Instructions')
         }, 500);
-        // handleControlBoardClick('WorldQuestion') 
-       // handleControlBoardClick('Instructions')
+        
     }, []);
   
     const handleSliderChange = (event, newValue) => {
@@ -56,6 +54,8 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
         }
         else {
             setGameState('stroll')
+            setTrainSpeed(oldTrainSpeed)
+            forceStopFlag.current = false 
             const positionID = distanceToFirstSign + distanceRef.current
             const [tempDict, finalSignLocation] = composeSignsFromSetArray(positionID, questionMode, 1, signSpacing, canvasRef)
 
@@ -81,7 +81,7 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
     };
 
     const handleMouseClick = (event) => {
-        console.log('SS')
+        console.log('handleMouseClick')
     }
 
 

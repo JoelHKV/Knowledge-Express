@@ -1,9 +1,9 @@
 .TrainControlBlock {
     position: absolute;
+ 
     width: 100%;
     height: 100%;
     z-index: 1;
-   
     pointer-events: none;
     /* Set border-bottom-left-radius and border-bottom-right-radius to 0 to keep the bottom corners square */
 }
@@ -87,15 +87,15 @@
 
 .TitleBoard {
     position: absolute;
-    top: -28%;
-    left: calc(-50% - 0.5rem);
-    width: 200%;
+    top: -26%;
+    left: calc(-5% - 0.5rem);
+    width: 110%;
     height: calc(40% - 1rem);
     border-radius: 100%;
     background-color: #666;
     overflow: hidden;
     z-index: 1;
-    clip-path: polygon(calc(25% + 0.4rem) 60%, calc(75% - 0.4rem) 60%, calc(75% - 0.4rem) 100%, calc(25% + 0.4rem) 100%);
+    clip-path: polygon(calc(4.55% + 0.4rem) 60%, calc(95.45% - 0.4rem) 60%, calc(95.45% - 0.4rem) 100%, calc(4.55% + 0.4rem) 100%);
     border: solid black 0.5rem;
 }
     

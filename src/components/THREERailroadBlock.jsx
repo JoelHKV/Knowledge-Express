@@ -3,16 +3,11 @@ import { useFrame  } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 
 const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
-
-    console.log('rerender railroad ')
+  
     const hopDistance = 12;
     const meshRef = useRef();
     const [decorItems, setDecorItems] = useState(); 
-
   
-
-
-    
     useEffect(() => {
       
         const decorItemCount = 1;
@@ -86,13 +81,7 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
                         <boxGeometry args={[5, 0.1, 0.4]} />  
                         <meshStandardMaterial color="brown" />
                     </mesh>
-                ))}
-
-              
-
-
-
-                
+                ))}                          
                 <RailRoadAnimation />       
             </group>
 
