@@ -102,6 +102,18 @@ The following signs are displayed:
 - Now click MQ, WQ, or LQ to start, or press "?" to read the instructions again.
 
 
+## Architectural Choices
+
+The following architectural choices were made:
+
+- All 3D objects, particularly the signs, where made as autonomic as possible.
+- Uncessary re-renderings were avoided as much as possible
+- Strict division of the 3D scene and the rest of the app was implemented
+- Prop drilling was used instead of a state management library
+
+The purpose of these choices was to equip the project owner to handle more 
+complex yet similar projects in a performant manner. 
+
 ## Getting Started
 To run this React app locally, follow these 4 steps:
 1. **Clone the Repository:**
@@ -170,19 +182,18 @@ Where `CONCEPT NAME` is the name of each concept.
 ## API Documentation
 
 ### Overview
-This API allows you to retrieve information about concepts and their interconnections from Firestore using a Google Cloud Function.
-### Endpoints
-
+This API allows you to retrieve information about concepts and 
+their interconnections from Firestore using a Google Cloud Function.
+ 
 #### Get All Interconnections (GET)
-- **URL:** `https://europe-north1-koira-363317.cloudfunctions.net/readConceptsFireStore`
-- **Description:** iterates through relevant Firestore documents
-(`finalConceptData_0`, `finalConceptData_1`, ...), and returns the combined data in the json format
-- **Usage:** Simply make a GET request to the above URL.
 
-#### Get Concept Details (GET)
-- **URL:** `https://europe-north1-koira-363317.cloudfunctions.net/readConceptsFireStore?concept_name=ENTER_CONCEPT_NAME_HERE`
-- **Description:** Returns details about a specific concept.
-- **Usage:** Replace `ENTER_CONCEPT_NAME_HERE` with the desired concept name and make a GET request to the URL.
+Get Answer and 6 Follow-Up Questions (GET)
+
+
+### Endpoint 
+- **URL:** `https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest?question=ENTER_QUESTION_HERE`
+- **Description:** Returns json with keys "answer", "q1", "q2", "q3", "q4", "q5", and "q6"
+- **Usage:** Replace `ENTER_QUESTION_HERE` with the desired concept name and make a GET request to the URL.
 
 ### Access Restrictions and Usage
 To ensure the security and reliability of this API, the cloud function

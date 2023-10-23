@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -23,16 +23,12 @@ const THREESceneBlock = ({
     gameState,
     setGameState,
     trainSpeed,
-    oldTrainSpeed,
-    setOldTrainSpeed,
-    setTrainSpeed,
+    changeSpeed,
     canvasRef,
 }) => {
 
      
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    //const [intensity, setIntensity] = useState(60); 
 
    
     const activeSignIDRef = useRef(-1)
@@ -61,15 +57,13 @@ const THREESceneBlock = ({
              }
 
             if (forceStopFlag.current) { // sign has stopped the train
-                forceStopFlag.current = false // back to motion
-                setTrainSpeed(oldTrainSpeed) // back to motion
-                setGameState('stroll')
+                changeSpeed(-1, true)
                 return
             }
         }
         if (gameState === 'input') {
             setGameState('stroll')
-            setTrainSpeed(oldTrainSpeed)
+            changeSpeed(-1, true)
             setSceneItems({})
         }
 
@@ -86,15 +80,12 @@ const THREESceneBlock = ({
         useFrame(() => {
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
-             
-           
-
+                      
             if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign) {
                 forceStopFlag.current = true
             }
             if (forceStopFlag.current && trainSpeed > 0) {
-                setOldTrainSpeed(trainSpeed)
-                setTrainSpeed(0)
+                changeSpeed(0, true)
             }
 
             distanceRef.current += trainSpeed * deltaTime / 1000
@@ -105,13 +96,7 @@ const THREESceneBlock = ({
 
         return null;
     };
-
-     
-  
     
-
-    const spotlight = useMemo(() => new THREE.SpotLight('#fff'), []);
-
     return (
         <div className="THREESceneBlock">
             <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={handleCanvasClick} ref={canvasRef}>

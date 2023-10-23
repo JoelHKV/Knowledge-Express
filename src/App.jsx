@@ -75,9 +75,33 @@ const App = () => {
         const newSceneItems2 = Object.assign({}, answerSign, newSceneItems);
         setSceneItems(newSceneItems2)
     }
+
+    const changeSpeed = (newSpeed, force) => {
+        if (gameState === 'stroll' || force) {
+            if (newSpeed === -1) {
+                forceStopFlag.current = false
+                setTrainSpeed(oldTrainSpeed)
+                return
+            }
+            setTrainSpeed(newSpeed)
+            if (newSpeed > 0) {
+                forceStopFlag.current = false
+                setOldTrainSpeed(newSpeed)
+            }
+        }
+    };
+
+    const handleMouseWheelScroll = (event) => {
+        if (event.deltaY < 0 && trainSpeed < 4) {
+            changeSpeed(trainSpeed + 1)
+        }
+        if (event.deltaY > 0 && trainSpeed > 0) {
+            changeSpeed(trainSpeed - 1)
+        }
+    }
      
     return (      
-        <Box className="appContainer">                                       
+        <Box className="appContainer" onWheel={handleMouseWheelScroll}>                                       
             <THREESceneBlock
                 sceneItems={sceneItems}
                 setSceneItems={setSceneItems}
@@ -90,32 +114,26 @@ const App = () => {
                 gameState={gameState}
                 setGameState={setGameState}
                 trainSpeed={trainSpeed}
-                setTrainSpeed={setTrainSpeed}
-                oldTrainSpeed={oldTrainSpeed}
-                setOldTrainSpeed={setOldTrainSpeed}
+                changeSpeed={changeSpeed}
                 canvasRef={canvasRef} 
             />
             <TrainControlBlock                   
                 distanceRef={distanceRef}
                 finalSignAt={finalSignAt}
-                gameState={gameState}
                 setGameState={setGameState}
                 setSceneItems={setSceneItems}
-                setTrainSpeed={setTrainSpeed}
                 pivotDistanceToSign={pivotDistanceToSign}
                 distanceToFirstSign={distanceToFirstSign}
                 signSpacing={signSpacing}
                 trainSpeed={trainSpeed}
-                oldTrainSpeed={oldTrainSpeed}
-                setOldTrainSpeed={setOldTrainSpeed}
-                forceStopFlag={forceStopFlag}
+               // oldTrainSpeed={oldTrainSpeed}
+                changeSpeed={changeSpeed}
                 canvasRef={canvasRef}
             />
             {gameState === 'input' &&
                 <TextInputBlock
                     setThisQuestion={setThisQuestion}
-                    setTrainSpeed={setTrainSpeed}
-                    oldTrainSpeed={oldTrainSpeed}
+                    changeSpeed={changeSpeed}
                     setGameState={setGameState}
                     sceneItems={sceneItems}
                     setSceneItems={setSceneItems}
