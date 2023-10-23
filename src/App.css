@@ -24,21 +24,22 @@ html {
     font-size: 20px; /* Set the root font size */
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 800px), screen and (max-height: 800px) {
     html {
         font-size: 18px;
     }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 600px), screen and (max-height: 600px) {
     html {
         font-size: 15px;
     }
 }
 
-@media screen and (max-width: 450px) {
+@media screen and (max-width: 450px), screen and (max-height: 450px) {
     html {
-        font-size: 12px;
+        font-size: 11px;
     }
 }
 
+ 

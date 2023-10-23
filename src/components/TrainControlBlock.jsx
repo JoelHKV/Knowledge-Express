@@ -58,8 +58,6 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, gameState, pivotDistanceT
             forceStopFlag.current = false 
             const positionID = distanceToFirstSign + distanceRef.current
             const [tempDict, finalSignLocation] = composeSignsFromSetArray(positionID, questionMode, 1, signSpacing, canvasRef)
-
-           // const [tempDict, firstItemAt, finalSignLocation] = composeDict(questionMode, null, 20, signSpacing, distanceToFirstSign + distanceValue)
             finalSignAt.current = finalSignLocation            
             setSceneItems(tempDict)
         }

@@ -2,15 +2,15 @@ import { questions } from '../utilities/exampleQuestions';
 const { worldQuestions, lifeQuestions } = questions();
 
 const instructionSigns = [
-    'Welcome aboard the Knowledge Express!',
-    'If you already know what to do, click MQ, WQ, or LQ to start.',
-    'Otherwise, keep reading the instructional signs.',
+    'Welcome to Knowledge Express!',
     'This special train ride is all about learning.',
     'It teaches you nearly everything you have ever wanted to know.',
-    'You are in control of Knowledge Express at every step of the way.',
-    'You choose the initial topic as well as the direction of the details you explore.',
+    'Whether you are a seasoned traveler or just starting your journey...',
+    'These instructions will guide you through the experience.',
+    'If you already know what to do, click MQ, WQ, or LQ to start.',
+    'Otherwise, keep reading these instructional signs.',
     "Let's first take a look at how to control the train.",
-    'You can control the speed of the train in several different ways:',
+    'You can control the speed of the train in three different ways:',
     'Use the throttle lever located in the middle of the control panel.',
     'Turn the mouse wheel up and down.',
     'Click any sign once, and the train will stop in front of it.',
@@ -179,7 +179,7 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
       //  thisQuestion = textContent
         return {
             width: 0,
-            height: 0.2,
+            height: 0.4,
  
             signText: textContent,
             answerSign: true,     
