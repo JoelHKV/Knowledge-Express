@@ -19,8 +19,11 @@ const App = () => {
     const [gameState, setGameState] = useState('stroll'); 
     const [thisQuestion, setThisQuestion] = useState(null);
     
-    const [trainSpeed, setTrainSpeed] = useState(1);
-    const [oldTrainSpeed, setOldTrainSpeed] = useState(trainSpeed);
+   
+    const childRef = useRef(null);
+
+    const trainSpeedRef = useRef(1);
+     
 
     const pivotDistanceToSign = 6; 
     const distanceToFirstSign = 10;
@@ -28,7 +31,7 @@ const App = () => {
 
     const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
-    const forceStopFlag = useRef(false);
+    
 
     const canvasRef = useRef(null);
  
@@ -76,48 +79,34 @@ const App = () => {
         setSceneItems(newSceneItems2)
     }
 
-    const changeSpeed = (newSpeed, force) => {
-        if (gameState === 'stroll' || force) {
-            if (newSpeed === -1) {
-                forceStopFlag.current = false
-                setTrainSpeed(oldTrainSpeed)
-                return
-            }
-            setTrainSpeed(newSpeed)
-            if (newSpeed > 0) {
-                forceStopFlag.current = false
-                setOldTrainSpeed(newSpeed)
-            }
-        }
-    };
-
     const handleMouseWheelScroll = (event) => {
-        if (event.deltaY < 0 && trainSpeed < 4) {
-            changeSpeed(trainSpeed + 1)
-        }
-        if (event.deltaY > 0 && trainSpeed > 0) {
-            changeSpeed(trainSpeed - 1)
-        }
+        const direction = Math.sign(event.deltaY)
+        childRef.current.handleMouseWheelFromParent(direction);
     }
-     
+
+    const stopOrResumeMotion = (mode) => {
+        childRef.current.stopOrResumeMotion(mode)
+    }
+
+
     return (      
         <Box className="appContainer" onWheel={handleMouseWheelScroll}>                                       
+         
             <THREESceneBlock
                 sceneItems={sceneItems}
                 setSceneItems={setSceneItems}
                 distanceRef={distanceRef}
-                forceStopFlag={forceStopFlag}
                 pivotDistanceToSign={pivotDistanceToSign}
                 handleAskQuestionRequest={handleAskQuestionRequest}
                 showFollowUpQuestions={showFollowUpQuestions}
                 finalSignAt={finalSignAt}
                 gameState={gameState}
                 setGameState={setGameState}
-                trainSpeed={trainSpeed}
-                changeSpeed={changeSpeed}
-                canvasRef={canvasRef} 
+                trainSpeedRef={trainSpeedRef}
+                stopOrResumeMotion={stopOrResumeMotion}
+                canvasRef={canvasRef}
             />
-            <TrainControlBlock                   
+            <TrainControlBlock 
                 distanceRef={distanceRef}
                 finalSignAt={finalSignAt}
                 setGameState={setGameState}
@@ -125,15 +114,13 @@ const App = () => {
                 pivotDistanceToSign={pivotDistanceToSign}
                 distanceToFirstSign={distanceToFirstSign}
                 signSpacing={signSpacing}
-                trainSpeed={trainSpeed}
-               // oldTrainSpeed={oldTrainSpeed}
-                changeSpeed={changeSpeed}
+                trainSpeedRef={trainSpeedRef}
                 canvasRef={canvasRef}
+                refe={childRef}                
             />
             {gameState === 'input' &&
                 <TextInputBlock
                     setThisQuestion={setThisQuestion}
-                    changeSpeed={changeSpeed}
                     setGameState={setGameState}
                     sceneItems={sceneItems}
                     setSceneItems={setSceneItems}

@@ -15,22 +15,27 @@ const THREESceneBlock = ({
     sceneItems,
     setSceneItems,
     distanceRef,
-    forceStopFlag,
+  //  forceStopFlag,
     pivotDistanceToSign,
     handleAskQuestionRequest,
     showFollowUpQuestions,
     finalSignAt,
     gameState,
     setGameState,
-    trainSpeed,
-    changeSpeed,
+    stopOrResumeMotion,
+ //   trainSpeed,
+    trainSpeedRef,
+  //  changeSpeed,
     canvasRef,
 }) => {
 
      
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-   
+    console.log('render scene')
+
+    //const trainSpeed = thisTrainSpeedRef.current;
+    const starsRef = useRef();
     const activeSignIDRef = useRef(-1)
     const isFirstTriggerRef = useRef(true); // dummy to prevent a burst of calls
 
@@ -46,24 +51,28 @@ const THREESceneBlock = ({
 
 
     const handleCanvasClick = () => {
-        // empty canvas click can mean three different things
-
+       
         if (gameState === 'stroll') {
-
              if (activeSignIDRef.current > 0) { // sign has been selected once
                  setTimeout(() => {
                      handleActiveSignClick(-1) // undo the selection 
                  }, 40);
-             }
-
-            if (forceStopFlag.current) { // sign has stopped the train
-                changeSpeed(-1, true)
+                 stopOrResumeMotion('resume') // resume speed
+                 return
+             }    
+           // trainSpeedRef.current = - trainSpeedRef.current // otherwise toggle stop and go 
+            if (trainSpeedRef.current > 0) {
+                stopOrResumeMotion('stop')
+                return
+            }
+            if (trainSpeedRef.current < 0) {
+                stopOrResumeMotion('resume')
                 return
             }
         }
         if (gameState === 'input') {
             setGameState('stroll')
-            changeSpeed(-1, true)
+            stopOrResumeMotion('resume')
             setSceneItems({})
         }
 
@@ -81,15 +90,16 @@ const THREESceneBlock = ({
             const timeNow = Date.now()
             const deltaTime = timeNow - timeStamp
                       
-            if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign) {
-                forceStopFlag.current = true
+            if (distanceRef.current >= finalSignAt.current - pivotDistanceToSign && trainSpeedRef.current > 0) {
+                stopOrResumeMotion('stop')             
             }
-            if (forceStopFlag.current && trainSpeed > 0) {
-                changeSpeed(0, true)
-            }
-
-            distanceRef.current += trainSpeed * deltaTime / 1000
+            const presentSpeed = Math.max(trainSpeedRef.current, 0)
+            distanceRef.current += presentSpeed * deltaTime / 1000
             camera.position.z = distanceRef.current
+
+            if (starsRef.current) {
+                starsRef.current.position.z = camera.position.z
+            }
 
             timeStamp = timeNow
         });
@@ -98,13 +108,16 @@ const THREESceneBlock = ({
     };
     
     return (
-        <div className="THREESceneBlock">
-            <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} onClick={handleCanvasClick} ref={canvasRef}>
+        <div className="THREESceneBlock" onClick={handleCanvasClick}>
+            <Canvas camera={camera} gl={{ antialias: true }} style={{ zIndex: 0 }} ref={canvasRef}>
                 <ambientLight intensity={0.3} />        
                 <THREESpotlightWithTarget
                     distanceRef={distanceRef}
                 />
-                <Stars />
+                <mesh ref={starsRef}>
+                    <Stars/>
+                </mesh>
+
                 <THREERailroadBlock
                     distanceRef={distanceRef}
                     canvasRef={canvasRef} 
@@ -126,7 +139,9 @@ const THREESceneBlock = ({
                             distanceRef={distanceRef}
                             canvasRef={canvasRef} 
                             activeSignIDRef={activeSignIDRef}
-                            forceStopFlag={forceStopFlag}
+                      //  forceStopFlag={forceStopFlag}
+                            trainSpeedRef={trainSpeedRef}
+                            stopOrResumeMotion={stopOrResumeMotion}
                             pivotDistanceToSign={pivotDistanceToSign}
                             handleAskQuestionRequest={handleAskQuestionRequest}
                             handleActiveSignClick={handleActiveSignClick}

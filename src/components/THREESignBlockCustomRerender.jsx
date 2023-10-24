@@ -19,7 +19,8 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         answerSign,
         activeSignIDRef,
         handleActiveSignClick,
-        forceStopFlag,
+        stopOrResumeMotion,
+        trainSpeedRef,
         pivotDistanceToSign,
     }) => {
          
@@ -36,10 +37,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 shrinkFactor = shrinkFactor * signWidth / maxWidth
                 signWidth = maxWidth
             }
-           // fontSize = fontSize / Math.pow(shrinkfactor, 1 / 2.2)
-
             return [signHeight, signWidth, Math.pow(shrinkFactor, 1 / 2.2)];
-
         }
         
        
@@ -63,9 +61,6 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             
         }
 
-
-
-
         let goDownSpeed  
 
         const distanceNumber = parseFloat(distance);
@@ -79,7 +74,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
         const answerSignEnd = pivotDistanceToSign + 0;
         const zPosition = answerSign ? answerSignStart + distanceNumber : distanceNumber;
 
-        let prevPos
+         
              
         let startState = 'basic';
 
@@ -113,15 +108,15 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             if (fallable && !answerSign && distance - distanceRef.current - pivotDistanceToSign < -0.1 && meshRef.current.rotation.x ===0) {
                 if (signState === 'basic') {
                     flipSign.current = true
-                    goDownSpeed = 1 * (distanceRef.current - prevPos)
+                    goDownSpeed = 0.02 * trainSpeedRef.current;
                 }
-                if (signState === 'hasStoppedTrain' && !forceStopFlag.current) {
+                if (signState === 'hasStoppedTrain' && trainSpeedRef.current>0) {
                     flipSign.current = true
-                    goDownSpeed = 1 * (distanceRef.current - prevPos)
+                    goDownSpeed = 0.02 * trainSpeedRef.current;
                 }
 
                 if (signState === 'active') {
-                    forceStopFlag.current = true
+                    stopOrResumeMotion('stop')
                     setSignState('hasStoppedTrain');
                 }
             } 
@@ -159,14 +154,10 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
                 
                 answerSignStart = 0.96 * answerSignStart
                 let dist = answerSignStart + answerSignEnd               
-                meshRef.current.position.z = distanceRef.current + dist  
-                 
-               // meshRef.current.position.y -=0.01
-
+                meshRef.current.position.z = distanceRef.current + dist                  
                 meshRef.current.position.x = 0.985 * meshRef.current.position.x
                 
             }
-            prevPos = distanceRef.current;
         });
 
         const signPosition = [0, height + signHeight / 2, 0];

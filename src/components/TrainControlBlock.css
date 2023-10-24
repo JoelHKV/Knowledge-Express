@@ -18,7 +18,7 @@
     color: #880088;
     font-weight: 500 !important;
     -webkit-text-stroke: 0.1rem black;
-    z-index: 2;
+    z-index: 1;
 }
 
 .TrainControlBlockSpeedSlider {
@@ -98,10 +98,8 @@
     clip-path: polygon(calc(4.55% + 0.4rem) 60%, calc(95.45% - 0.4rem) 60%, calc(95.45% - 0.4rem) 100%, calc(4.55% + 0.4rem) 100%);
     border: solid black 0.5rem;
 }
-    
 
-
-
+ 
  
 
 

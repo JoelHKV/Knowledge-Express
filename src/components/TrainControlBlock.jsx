@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+
+
 import { styled } from '@mui/system';
 import { Slider, Button, Typography } from '@mui/material';
 
@@ -16,37 +18,79 @@ const CustomSlider = styled(Slider)(({ value }) => ({
         height: value === 0 ? 56 : 60,
     },
     '& .MuiSlider-track': {
-        backgroundColor: 'black',
+        backgroundColor: '#880088',
+        width: 20,
     },
     '& .MuiSlider-rail': {
         backgroundColor: 'black',
+        width: 20,
     },
 
 
 }));
  
  
-const TrainControlBlock = ({ finalSignAt, distanceRef, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeed, changeSpeed, canvasRef }) => {
-      
+const TrainControlBlock = ({ finalSignAt, distanceRef, pivotDistanceToSign, distanceToFirstSign, signSpacing, setGameState, setSceneItems, trainSpeedRef, canvasRef, refe }) => {
+
+
+    const [sliderValue, setSliderValue] = useState(trainSpeedRef.current);
+    const maxSpeed = 4
+
     useEffect(() => {
         setTimeout(function () {
             handleControlBoardClick('Instructions')
         }, 500);
         
     }, []);
-  
+
+ 
+    useImperativeHandle(refe, () => ({
+        handleMouseWheelFromParent,
+        stopOrResumeMotion,
+    }));
+
+    const handleMouseWheelFromParent = (increment) => {        
+        changeSpeed(Math.abs(trainSpeedRef.current) - increment)
+    }
+
+
+    const changeSpeed = (newSpeed) => {
+        if (newSpeed < 0) {
+            newSpeed = 0
+        }
+        if (newSpeed > maxSpeed) {
+            newSpeed = maxSpeed
+        }
+        trainSpeedRef.current = newSpeed
+        setSliderValue(newSpeed)    
+    }
+ 
+     
+    const stopOrResumeMotion = (mode) => {
+        if (mode === 'stop') {
+            trainSpeedRef.current = - Math.abs(trainSpeedRef.current)
+            setSliderValue(0)
+        }
+        if (mode === 'resume') {
+            trainSpeedRef.current = Math.abs(trainSpeedRef.current)
+            setSliderValue(trainSpeedRef.current)
+        } 
+    }
+
+
     const handleControlBoardClick = (questionMode) => {
 
         if (questionMode === 'OwnQuestion') {
             setGameState('input') // pops out the actual text entry
-            changeSpeed(0)
+            stopOrResumeMotion('stop')
+            console.log(trainSpeedRef.current)
             const locationID = 0.1 + pivotDistanceToSign + parseInt(distanceRef.current)
             const tempDict = composeOneEmptySign(locationID) // creates a 3d sign behind it
             setSceneItems(tempDict)
         }
         else {
             setGameState('stroll')
-            changeSpeed(-1, true)
+            stopOrResumeMotion('resume')
             const positionID = distanceToFirstSign + distanceRef.current
             const [tempDict, finalSignLocation] = composeSignsFromSetArray(positionID, questionMode, 1, signSpacing, canvasRef)
             finalSignAt.current = finalSignLocation            
@@ -76,7 +120,10 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, pivotDistanceToSign, dist
    
     return (
         <div className="TrainControlBlock">                
+
             <div className="TitleBoard"></div>
+
+             
             <Typography className='AppTitleText' variant="h3">
                 Knowledge Express
             </Typography>
@@ -84,13 +131,12 @@ const TrainControlBlock = ({ finalSignAt, distanceRef, pivotDistanceToSign, dist
             <div>
                 <div className="TrainControlBlockSpeedSlider">
                     <CustomSlider
-                        value={trainSpeed}
+                        value={sliderValue}
                         onChange={(event, newSpeed) => changeSpeed(newSpeed)}
                         orientation="vertical"
                         min={0}
-                        max={3}
-                        step={1}
-                        marks
+                        max={maxSpeed}
+                        step={1}                    
                     />
                 </div>
             </div>

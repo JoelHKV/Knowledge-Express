@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFrame  } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 
 const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
   
     const hopDistance = 12;
     const meshRef = useRef();
     const [decorItems, setDecorItems] = useState(); 
+
+
+    console.log('rendering railrod')
   
     useEffect(() => {
       
@@ -64,7 +68,11 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
 
     return (
         <>                               
-            <group ref={meshRef}  >               
+            <group ref={meshRef}  >  
+                
+           
+
+
                 <mesh position={[0, -0.05, 40]} rotation={[0, 0, 0]}>
                     <boxGeometry args={[140, 0.1, 80]} />   
                     <meshStandardMaterial color="#D2B48C" />
@@ -123,6 +131,8 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
 
 
             ))}
+
+           
                         
         </>
     );

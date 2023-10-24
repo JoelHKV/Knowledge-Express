@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TextInputBlock.css'; // Import the CSS file
 
-const TextInputBlock = ({ setThisQuestion, changeSpeed, setGameState, sceneItems, setSceneItems, addWaitmessages }) => {
+const TextInputBlock = ({ setThisQuestion, setGameState, sceneItems, setSceneItems, addWaitmessages }) => {
 
     const [inputValue, setInputValue] = useState('');
 
@@ -15,7 +15,6 @@ const TextInputBlock = ({ setThisQuestion, changeSpeed, setGameState, sceneItems
 
 
     const processOwnQuestion = (ownQuestion) => {
-        changeSpeed(-1, true)
         setThisQuestion(ownQuestion)
         setGameState('questionSelected');
         const ownQuestionItem = sceneItems
