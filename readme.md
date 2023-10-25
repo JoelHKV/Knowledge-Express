@@ -3,14 +3,19 @@
 
 ## General Information
 
-Knowledge Express is an educational web app designed to teach any
-topic that can be expressed through language. It harnesses 
-the power of ChatGPT, making learning an exciting 
-and interactive journey. In a world where reading long blocks of text 
-can be challenging, Knowledge Express offers an engaging alternative.
+Knowledge Express is an educational game that empowers you
+to explore the topics that interest you the most. In this 
+unique learning adventure, you take on the role of a train driver,
+navigating educational content displayed on railroad signs.
 
-Prepare yourself for an educational adventure on Knowledge Express!
+Knowledge Express harnesses the power of ChatGPT to deliver
+a seamless and engaging learning experience. It distills 
+complex knowledge into easily digestible morsels, and enables you 
+to explore them at your preferred pace. The result is an 
+interactive journey that keeps you captivated along the railroad.
 
+Join Knowledge Express and experience a fun and interactive 
+way to learn today!
 
 ## Introduction
 
@@ -77,24 +82,6 @@ merely clicking away, without the need for complicated actions.
 ChatGPT continuously provides questions, and users can explore 
 topics in depth by selecting the questions that pique their curiosity.
 
- 
-## Learning Promoting Features
-
-Knowledge Express offers several unique features that foster 
-effective learning:
-
-- Personalized Learning: Users can dive into topics they are inherently interested in, boosting motivation compared to rigid curriculum-based learning.
-
-- Immediate Exploration: Users can get inspired by new topics and dive into them immediately, preventing motivation from waning or topics from being forgotten.
-
-- Engaging Interactions: Users engage in fast-paced interactions with small, digestible doses of information, a learning style well-suited for the modern world where attention spans can be limited.
-
-- Flexible Pacing: Users can control the speed of the train, determining the rate at which they receive information, making it suitable for both fast and slow learners.
-
-- Fun and Interactive: Learning becomes an enjoyable activity, as users embark on a fun journey while acquiring knowledge.
-
-- Motion-Enhanced Learning: Users experience motion while learning, making the process more engaging and enjoyable.
-
 
 ## Instructions
  
@@ -144,18 +131,54 @@ button at any time. Here's an overview of the instructions:
 - Enjoy your learning journey with Knowledge Express!
 - Now click MQ, WQ, or LQ to start, or press "?" to read the instructions again.
 
+ 
+## Learning Promoting Features
 
-## Architectural Choices
+Knowledge Express offers several unique features that foster 
+effective learning:
 
-The following architectural choices were made:
+- **Personalized Learning:** Users can dive into topics they are inherently interested in, boosting motivation compared to rigid curriculum-based learning.
 
-- All 3D objects, particularly the signs, where made as autonomic as possible.
-- Uncessary re-renderings were avoided as much as possible
-- Strict division of the 3D scene and the rest of the app was implemented
-- Prop drilling was used instead of a state management library
+- **Immediate Exploration:** Users can get inspired by new topics and dive into them immediately, preventing motivation from waning or topics from being forgotten.
 
-The purpose of these choices was to equip the project owner to handle more 
-complex yet similar projects in a performant manner. 
+- **Engaging Interactions:** Users engage in fast-paced interactions with small, digestible doses of information, a learning style well-suited for the modern world where attention spans can be limited.
+
+- **Flexible Pacing:** Users can control the speed of the train, determining the rate at which they receive information, making it suitable for both fast and slow learners.
+
+- **Fun and Interactive:** Learning becomes an enjoyable activity, as users embark on a fun journey while acquiring knowledge.
+
+- **Motion-Enhanced Learning:** Users experience motion while learning, making the process more engaging and enjoyable.
+
+## Architecture
+
+The app is strictly divided into regular React components 
+(e.g., ```TrainControlBlock```) and the 3D scene (```THREESceneBlock```). 
+All 3D subcomponents start with ```THREE...```.
+
+To make the app as performant as possible, the following 
+techniques were implemented:
+
+- Prop drilling instead of the blind use of a state management library
+- Memoization
+- Extensive use of ```useRef``` instead of ```useState```
+
+Special emphasis was placed on avoiding unnecessary re-renders. 
+For example, the train speed is treated globally as a 
+ref (```trainSpeedRef```) so that speed changes do not trigger 
+re-rendering of the whole scene. However, it is also 
+treated locally as a state in ```TrainControlBlock``` to 
+update the throttle lever.
+
+In addition, subcomponents in the 3D scene, particularly the signs, 
+were made as autonomous as possible. They fully manage themselves, 
+are never re-rendered from the top-down, and only require two 
+pieces of data: a) the position of the train and b) a sign 
+ID indicating which sign has been made active 
+(in order to deactivate if another sign has been clicked).
+
+This project is rather simple and does not necessarily require 
+the techniques discussed above. They were implemented, however, 
+to learn how to handle similar yet more complicated projects in the future.
 
 ## Getting Started
 To run this React app locally, follow these 5 steps:
@@ -177,18 +200,16 @@ npm run dev
 ```
 5. **API Accecss:**
 
-If you wish to use this API, please refer [API Access](#api-access) for details.
-If you wish to test this app with mock data, go to App.jsx and find 
-the following two lines:
+If you wish to use this API, please refer to [API Access](#api-access) 
+for details. If you prefer to test this app with mock data, navigate 
+to App.jsx and locate the following two lines:
 
 ```
    const { questionAnswerData, loaded, error } = fetchQandA(cloudFunctionURL, thisQuestion); // fetch real data from the API
     //const { questionAnswerData, loaded, error } = fetchMockQandA(cloudFunctionURL, thisQuestion); // mimic fetch and generate mock data
 ```
-Simply comment the first line (real data) and uncomment the second line (mock data),
-and nowthe app uses a hook that generates nonsense text to signs.
-
-
+To use mock data, simply comment out the first line (hook for real data) 
+and uncomment the second line (hook for mock data).
 
 
 ## Folder Structure
@@ -199,21 +220,26 @@ The project directory is organized as follows:
 * App.jsx: The main entry point
 * App.css: The main CSS styles specific to App.jsx
 * assets/: Stores static assets like images, fonts, etc
-* components/: Houses React components
+* components/: Houses React components (all 3D scene components start with ```THREE...```)
 * hooks/: Contains custom React hooks
 * utilities/: Holds utility functions
+* backend/: Contains python scripts for prompting ChatGPT
 * testing_scripts/: Contains testing scripts
 
 ## Data
 
-ChatGPT 3.5 generated.
+Under the hood, Knowledge Express uses ChatGPT 3.5. Most commonly 
+requested data is stored in Google Firestore, and unique data is 
+prompted on the spot. A special-purpose Google Cloud Function 
+was developed to serve as an API for providing both saved and live data.
+
 
 ### Generation of Initial Data
 
-- Prompt ChatGPT (manually) to generate the initial questions (100 world questions and 100 life questions)
-- Loop through initial questions and request ChatGPT to generate answers and follow-up questions (see the functions below))
-- Filter and arrange data to dictionaries (see ```chat_gpt_data_generation.py``` in the backend-folder)
-- Save filtered data to Google Firestore
+Knowledge Express initially contains 100 world questions and 100 
+life questions. These questions were created by manually 
+prompting ChatGPT 3.5. The answers and follow-up questions 
+for these inquiries were generated using the following Python scripts:
 
  ```
 def answer_and_related_questions(question):
@@ -244,44 +270,47 @@ def chat_completion_create(message_log):
 
 
 ```
+The ChatGPT output was then filtered and arranged 
+into dictionaries using the following script (```chat_gpt_data_generation.py```).
 
+Finally, the initial data was saved to Firestore with the following schema:
+ - **`knowledgeExpress`** (Collection)
+    - **`[Question]`** (Document)
+        - **`answer`** (String): A concise answer (about 80 words) to the question
+        - **`q1`** (String): 1st follow-up question 
+        - **`q2`** (String): 2nd follow-up question 
+        - **...**
+        - **`q6`** (String): 6th follow-up question 
  
 ### Cloud Function to Serve Data
 
-A special purpose Google Cloud Function was written to deal with 
-initial and live data. Here, we will discuss the functional 
-aspect of it.
- 
+The special-purpose Cloud Function performs the following tasks:
+
+- Checks the permissions of the request.
+- Verifies if the requested data is stored in Firestore.
+- If the data is found in Firestore, it retrieves the data.
+- If not, it prompts ChatGPT to generate data, similar to the creation of initial data.
+- Finally, it returns the data.
 
 #### API Access 
-To ensure the security and reliability of this API, the cloud function
-first checks the URL and the IP address of the request. 
-Automatic access is granted
-to the URL of the deployed version and the IP address 
-of my own development server.
 
-If you wish to use this API, please don't hesitate to contact the [Project owner](#contact-information).
+To ensure the security and reliability of this API, the 
+Cloud Function first checks the URL and the IP address 
+of the request. Automatic access is granted to the URL 
+of the deployed version and the IP address of my own 
+development server.
 
-#### Retrieve Data or Make a ChatGPT Request 
-Next, the cloud function checks whether the incoming question
-has already been saved to Firestore or not. If yes, the function
-reads the data from the firebase. Since the cloud function will
-handle the database automatically, we will not discuss 
-database schema here.
-
-If the requested question is not found in the database, the function
-will make a ChatGPT request similar to [Generation of Initial Data](#generation-of-initial-data)
-retrieves the data.  
+If you wish to use this API, please don't hesitate to 
+contact the [Project owner](#contact-information).
 
 #### API Endpoint 
 
 Use the API as follows:
-
 - **URL:** `https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest?question=ENTER_QUESTION_HERE`
 - **Description:** Returns json with keys "answer", "q1", "q2", "q3", "q4", "q5", and "q6"
 - **Usage:** Replace `ENTER_QUESTION_HERE` with the question and make a GET request to the URL.
 
-A request returns a json that looks as follows: 
+A request returns JSON that looks as follows:
 
 ```
 {"answer":"GitHub is a web-based platform for 
@@ -297,39 +326,55 @@ and facilitating collaboration among team members. ",
 "q6":"Can GitHub be used for non-coding projects? "}
 ```
 
-### Prompting ChatGPT
-The prompting of ChatGPT is a pursuit of trial and error, and some
-things are worth nothing here:
+### ChatGPT 3.5 Output
 
-- ChatGPT 3.5 generally provides quite good answers. Indeed, it is
-inherintly designed for generating answers to questions and trained with
-a large amount of data.
-
-- ChatGPT 3.5 is quite good at generating follow-up questions as well, 
-although they might sometimes be a bit repetitive and not always the 
-most brillant.
-
-- ChatGPT 3.5 does not always provide the answer in the requested format, even when 
-the tempareture param is set to 0. We first attempted to request json format
-directly, but decided to request a hashtag (#) as a delimiter and parse the data
-ourselves. Even then, careful examination of potential output formats is in order and
-how to deal with them.
-- ChatGPT 3.5 does not always correctly count up to 6. To overcome, we requested
-7 follow-up questions and selected the first 6.
+#### Quality of Data
 
 
+The quality of the data is ultimately a matter of subjective evaluation. 
+It is worth noting, however, that Large Language Models are inherently 
+designed for giving verbal answers to verbal questions, and they are 
+trained with a large amount of data from the internet. Thus, if there 
+is any task that ChatGPT 3.5 is good at, it is providing answers to 
+questions for which the internet is full of information.
 
+The quality of the follow-up questions is somewhat lower. 
+For learners interested in the big picture, the quality is 
+sufficient, but for learners interested in delving into 
+the details, the questions might become a bit repetitive 
+and boring. This is a feature of ChatGPT 3.5 that is 
+addressed by giving users the option to type in their 
+own follow-up questions.
 
+#### Prompting Challenges
+
+The major challenge in ChatGPT 3.5 prompting is that the output 
+formatting is inconsistent. This occasionally occurs no matter 
+how precisely ChatGPT is asked to provide the output in a certain 
+format. Setting the creativity to zero (temperature=0) does not 
+solve this problem either.
+
+After a fair amount of trial and error (e.g., requesting JSON), 
+the most robust method was to ensure that the output data 
+contains unique delimiters (#). Then, the output string was 
+manually parsed into JSON. This is also a matter of trial 
+and error, as ChatGPT tends to change the output format slightly.
+
+Occasionally, ChatGPT fails to count up to 6 exactly. 
+To overcome this, we requested 7 follow-up questions 
+and selected the first 6.
 
 ## Technologies Used
-The frontend is written in JavaScript (React), HTML, and CSS.  The backend is written in Python.
+The frontend is written in JavaScript (React and `@react-three/fiber` for 
+the 3D scene), HTML, and CSS. The backend is written in Python.
 
 ## Testing
 ## Known Issues
 ## Roadmap
-- Railroad signs could contain information beyond text. For example more abstract 
-question could be placed higher than concrete questions. Answers signs could also be color-coded for 
-example how certain ChatGPT is about the answer.
+- Railroad signs could convey information beyond text. 
+For example, more abstract questions could be positioned 
+higher than concrete questions. Answer signs could also be color-coded, 
+indicating how confident ChatGPT is about the answer.
 
 ## Contact Information
 
