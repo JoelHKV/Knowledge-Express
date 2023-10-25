@@ -145,7 +145,7 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             }
                       
             if (signState === 'selected') {  
-            
+              
                 meshRef.current.position.z = trainToSignGap + distanceRef.current
                 meshRef.current.position.x = 0.99 * meshRef.current.position.x;
                
@@ -181,6 +181,9 @@ const MemoizedTHREESignBlockCustomRerender = React.memo(
             if (activeSignIDRef.current === distanceNumber) {
                 handleAskQuestionRequest(distance);
                 setSignState('selected')
+                stopOrResumeMotion('resume')
+                
+
             }
             else {
                 setSignState('active')

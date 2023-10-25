@@ -9,9 +9,7 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
     const meshRef = useRef();
     const [decorItems, setDecorItems] = useState(); 
 
-
-    console.log('rendering railrod')
-  
+ 
     useEffect(() => {
       
         const decorItemCount = 1;
