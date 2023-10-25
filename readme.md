@@ -369,6 +369,21 @@ The frontend is written in JavaScript (React and `@react-three/fiber` for
 the 3D scene), HTML, and CSS. The backend is written in Python.
 
 ## Testing
+Since Knowledge Express uses elements inside the 3D scene as buttons, but they are not easily 
+recognized as such by conventional automated testing tools such as Selenium, 
+we use Autohotkey for functional testing. The `SelectAreaAndFireClicks.ahk` 
+in the `testing_script` folder is a general-purpose testing script that 
+fires random mouse clicks inside a specified rectangular area on the screen.
+
+To use the script, first press the key `s` in the top-left corner of 
+the clicking area and then press the key `x` in the bottom-right 
+corner of the clicking area. Then, press the key `v` to toggle the 
+clicking on and off.
+
+This random clicking test was run with Chrome, Firefox, and Edge (but not Safari). 
+You can view the resulted 
+[screen capture video here.](https://storage.googleapis.com/joeltestfiles/RandomClickingWithFirefox.mp4)
+
 ## Known Issues
 ## Roadmap
 - Railroad signs could convey information beyond text. 

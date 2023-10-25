@@ -60,7 +60,6 @@ const THREESceneBlock = ({
                  stopOrResumeMotion('resume') // resume speed
                  return
              }    
-           // trainSpeedRef.current = - trainSpeedRef.current // otherwise toggle stop and go 
             if (trainSpeedRef.current > 0) {
                 stopOrResumeMotion('stop')
                 return
