@@ -1,8 +1,5 @@
 :root {
     --app-max-width: 1050px;
-    --button-text-color: #000000;
-    --button-background-color: #ee7700;
-    --button-background-color-hover: #aa5500;
 }
 
 .appContainer {
@@ -10,15 +7,13 @@
     left: 50%;
     top: 2%;
     transform: translateX(-50%);
-    width: clamp(200px, 95%, var(--app-max-width) + 0px);
+    width: clamp(200px, 95%, var(--app-max-width));
     user-select: none;
     border: solid black 0.5rem;
-    height: 96vh;
+    height: 94vh;
     border-radius: 1rem;
     overflow: hidden;
 }
-
-
 
 html {
     font-size: 20px; /* Set the root font size */

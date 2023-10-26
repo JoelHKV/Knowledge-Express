@@ -1,6 +1,40 @@
 # Knowledge Express
 [Knowledge Express is deployed to GitHub](https://JoelHKV.github.io/Knowledge-Express/)
 
+## Table of Contents
+1. [General Information](#general-information)
+2. [Introduction](#introduction)
+    - [Choosing a Question](#choosing-a-question)
+    - [Reading the Answer](#reading-the-answer)
+    - [Choosing a Follow-up Question](#choosing-a-follow-up-question)
+    - [Learning Cycle](#learning-cycle)
+3. [Instructions](#instructions)
+    - [Welcome!](#welcome)
+    - [Controlling the Train](#controlling-the-train)
+    - [Gameplay Overview](#gameplay-overview)
+    - [Exploring Topics](#exploring-topics)
+    - [Changing Topics](#changing-topics)
+4. [Learning Promoting Features](#learning-promoting-features)
+5. [Architecture](#architecture)
+6. [Getting Started](#getting-started)
+7. [Folder Structure](#folder-structure)
+8. [Data](#data)
+    - [Generation of Initial Data](#generation-of-initial-data)
+    - [Cloud Function to Serve Data](#cloud-function-to-serve-data)
+        - [API Access](#api-access)
+        - [API Endpoint](#api-endpoint)
+    - [ChatGPT 3.5 Output](#chatgpt-3.5-output)
+        - [Quality of Data](#quality-of-data)
+        - [Prompting Challenges](#prompting-challenges)
+9. [Technologies Used](#technologies-used)
+10. [Testing](#testing)
+11. [Known Issues](#known-issues)
+12. [Roadmap](#roadmap)
+13. [Contact Information](#contact-information)
+
+
+
+
 ## General Information
 
 Knowledge Express is an educational game that empowers you
@@ -215,15 +249,15 @@ and uncomment the second line (hook for mock data).
 ## Folder Structure
 The project directory is organized as follows:
 
-* src/: This folder contains the main source code
 * main.jsx: The JavaScript entry point
 * App.jsx: The main entry point
 * App.css: The main CSS styles specific to App.jsx
-* assets/: Stores static assets like images, fonts, etc
-* components/: Houses React components (all 3D scene components start with ```THREE...```)
-* hooks/: Contains custom React hooks
-* utilities/: Holds utility functions
-* backend/: Contains python scripts for prompting ChatGPT
+* src/: This folder contains the main source code
+* src/assets/: Stores static assets like images, fonts, etc
+* src/components/: Houses React components (all 3D scene components start with ```THREE...```)
+* src/hooks/: Contains custom React hooks
+* src/utilities/: Holds utility functions
+* backend/: Contains Python scripts for prompting ChatGPT
 * testing_scripts/: Contains testing scripts
 
 ## Data
@@ -385,14 +419,20 @@ You can view the resulted
 [screen capture video here.](https://storage.googleapis.com/joeltestfiles/RandomClickingWithFirefox.mp4)
 
 ## Known Issues
+- A last-minute change was needed for parsing the ChatGPT output 
+into a dictionary. Please keep an eye open to ensure that it 
+does not cause any unexpected issues. If you encounter a strange 
+railroad sign, please take a screenshot and email it to the project owner. 
+
 ## Roadmap
-- Railroad signs could convey information beyond text. 
+- Railroad signs could convey information beyond text.
 For example, more abstract questions could be positioned 
-higher than concrete questions. Answer signs could also be color-coded, 
-indicating how confident ChatGPT is about the answer.
+higher than concrete questions, and signs could be color-coded 
+to indicate how certain ChatGPT is about the answer. 
+[The Concept Generator project](https://github.com/JoelHKV/ConceptGenerator) would provide a good starting 
+point for such evaluations.
 
 ## Contact Information
-
 For inquiries or collaboration opportunities, please feel free to contact me via email. 
 My name is listed on the [Profile page](https://github.com/JoelHKV), and I am using Gmail.
 

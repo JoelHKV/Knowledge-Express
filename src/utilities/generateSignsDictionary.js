@@ -1,42 +1,11 @@
-import { questions } from '../utilities/exampleQuestions';
-const { worldQuestions, lifeQuestions } = questions();
 
-const instructionSigns = [
-    'Welcome to Knowledge Express!',
-    'This special train ride is all about learning.',
-    'It teaches you nearly everything you have ever wanted to know.',
-    'Whether you are a seasoned traveler or just starting your journey...',
-    'These instructions will guide you through the experience.',
-    'If you already know what to do, click MQ, WQ, or LQ to start.',
-    'Otherwise, keep reading these instructional signs.',
-    "Let's first take a look at how to control the train.",
-    'You can control the speed of the train in three different ways:',
-    'Use the throttle lever located in the middle of the control panel.',
-    'Turn the mouse wheel up and down.',
-    'Click any sign once, and the train will stop in front of it.',
-    'To resume motion, use the throttle lever, the mouse wheel, or simply click an empty part of the screen.',
-    'The gameplay proceeds as follows:',
-    'First, you will either choose a question or type in a question.',
-    'The WQ button will display a series of World Questions to choose from.',
-    'The LQ button will display a series of Life Questions to choose from.',
-    'Simply travel through the question signs and double-click any that interest you.',
-    'Alternatively, the MQ (My Question) button allows you to ask whatever you want. Simply type in your question and press the "Submit" button.',
-    'Whether you choose a question or type in a question, a red border will appear around it. This indicates that ChatGPT is thinking about the question.',
-    'Once the answer is ready, the answer sign will "fly" right in front of the train.',
-    'After you have read the answer, click the answer sign, and it will fly away.',
-    'Next, you will see a series of signs that contain follow-up questions.',
-    'Double-click any follow-up question, and ChatGPT will start thinking about it.',
-    'After reading the answer, you will be presented with new follow-up questions.',
-    'By always asking the follow-up question of your interest, you can delve into any topic as deeply as you want.',
-    'Once you are done with the topic, you can click MQ, WQ, or LQ to restart.',
-    'Enjoy your learning journey with Knowledge Express!',
-    'Now click MQ, WQ, or LQ to start, or press "?" to read the instructions again.'
-];
+import { shuffleFisherYates, getRandomNumber } from '../utilities/numberCruching.js';
 
-
-const waitMessages = ['ChatGPT is thinking', 'Wait patiently', 'Just a little longer', 'The answer is coming.']
-const finalSignText = 'You have not done anything for a while. Click any Question Button to keep the train going!'
-
+import { lifeQuestions } from '../utilities/lifeQuestions';
+import { worldQuestions } from '../utilities/worldQuestions';
+import { instructionText } from '../utilities/instructionText';
+import { waitMessages } from '../utilities/waitMessages';
+import { finalSignText } from '../utilities/finalSignText';
 
 export const composeOneEmptySign = (positionID) => {
     const tempDict = {}
@@ -75,7 +44,7 @@ export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spaci
     
     let signtype
     if (arrayName === 'Instructions') {
-        signArray = instructionSigns
+        signArray = instructionText
         signtype = 'GameInfo'
     }
     if (arrayName === 'WaitMessages') {
@@ -83,11 +52,11 @@ export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spaci
         signtype = 'WaitSign'
     }
     if (arrayName === 'WorldQuestion') {
-        signArray = worldQuestions
+        signArray = shuffleFisherYates(worldQuestions)
         signtype = 'RegularQuestion'
     }
     if (arrayName === 'LifeQuestion') {
-        signArray = lifeQuestions
+        signArray = shuffleFisherYates(lifeQuestions)
         signtype = 'RegularQuestion'
     }
 
@@ -108,14 +77,13 @@ export const composeSignsFromSetArray = (positionID, arrayName, nroRepeat, spaci
     return [tempDict, positionID - spacing]
 }
 
-
 const addWhatToDict = (signType, textContent, canvasRef) => {
     textContent = textContent?.trim();
     let maxWidth = 4;
     if (canvasRef) {
-        maxWidth = canvasRef.current.offsetWidth/250
+        maxWidth = canvasRef.current.offsetWidth/225-0.6
     }
- 
+    console.log(maxWidth)
     if (signType === 'OwnQuestion') {
         return {
             ownQuestionSign: true,
@@ -163,7 +131,6 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
     }
   
     if (signType === 'endMessage') {
-      //  thisQuestion = textContent
         return {
             width: 0,
             height: 0.5,
@@ -176,7 +143,6 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
 
 
     if (signType === 'Answer') {
-      //  thisQuestion = textContent
         return {
             width: 0,
             height: 0.4,
@@ -189,8 +155,3 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
     }
 
 }
-
-
-const getRandomNumber = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};

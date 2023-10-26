@@ -7,7 +7,7 @@ openai.api_key = api_key
 
 def raw_chatgpt_to_dict(chatgpt_output):
     for i in range(9):
-        chatgpt_output = chatgpt_output.replace(str(i+1) + '.', '#') # get rid of numbering, maybe chatgpt forgot #
+        chatgpt_output = chatgpt_output.replace(str(i+1) + '. ', '#') # get rid of numbering, maybe chatgpt forgot #
         chatgpt_output = chatgpt_output.replace('#' + str(i+1), '#') # get rid of numbering
         chatgpt_output = chatgpt_output.replace(str(i+1) + '#', '#') # get rid of numbering
         

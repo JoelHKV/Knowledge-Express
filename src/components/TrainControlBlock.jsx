@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } f
 import { styled } from '@mui/system';
 import { Slider, Button, Typography } from '@mui/material';
 
-import { composeOneEmptySign, composeSignsFromSetArray } from '../utilities/generateSignsPerButtonClick';
+import { composeOneEmptySign, composeSignsFromSetArray } from '../utilities/generateSignsDictionary';
 
 
 import './TrainControlBlock.css';

@@ -9,8 +9,8 @@ import THREESceneBlock from './components/THREESceneBlock';
 import TrainControlBlock from './components/TrainControlBlock';
 import TextInputBlock from './components/TextInputBlock';
  
-import { composeSignsFromQuestionsDict, composeSignsFromSetArray, composeAnswerSign } from './utilities/generateSignsPerButtonClick';
- 
+import { composeSignsFromQuestionsDict, composeSignsFromSetArray, composeAnswerSign } from './utilities/generateSignsDictionary';
+
 import './App.css'; 
 
 const App = () => {
@@ -18,13 +18,10 @@ const App = () => {
     const [sceneItems, setSceneItems] = useState();
     const [gameState, setGameState] = useState('stroll'); 
     const [thisQuestion, setThisQuestion] = useState(null);
-    
-   
+     
     const childRef = useRef(null);
-
     const trainSpeedRef = useRef(1);
      
-
     const pivotDistanceToSign = 6; 
     const distanceToFirstSign = 10;
     const signSpacing = 5; 
@@ -32,17 +29,13 @@ const App = () => {
     const distanceRef = useRef(0); // distance travelled  
     const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
     
-
     const canvasRef = useRef(null);
  
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
  
     const { questionAnswerData, loaded, error } = fetchQandA(cloudFunctionURL, thisQuestion); // fetch real data from the API
     //const { questionAnswerData, loaded, error } = fetchMockQandA(cloudFunctionURL, thisQuestion); // mimic fetch and generate mock data
-
-     
-
-
+   
     if (loaded && gameState === 'questionSelected') {
         setGameState('showAnswerSign')
         //const newSceneItems = {};
@@ -87,7 +80,6 @@ const App = () => {
     const stopOrResumeMotion = (mode) => {
         childRef.current.stopOrResumeMotion(mode)
     }
-
 
     return (      
         <Box className="appContainer" onWheel={handleMouseWheelScroll}>                                       
