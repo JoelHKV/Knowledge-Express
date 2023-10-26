@@ -10,7 +10,7 @@
     width: clamp(200px, 95%, var(--app-max-width));
     user-select: none;
     border: solid black 0.5rem;
-    height: 92vh;
+    height: 94vh;
     border-radius: 1rem;
     overflow: hidden;
 }

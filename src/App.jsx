@@ -77,9 +77,8 @@ const App = () => {
         childRef.current.stopOrResumeMotion(mode)
     }
 
-    return (      
-        <Box className="appContainer" onWheel={handleMouseWheelScroll}>                                       
-         
+    return (  
+        <Box className="appContainer" onWheel={handleMouseWheelScroll}>                                                
             <THREESceneBlock
                 sceneItems={sceneItems}
                 setSceneItems={setSceneItems}
@@ -114,8 +113,8 @@ const App = () => {
                     setSceneItems={setSceneItems}
                     addWaitmessages={addWaitmessages}
                 />
-            }                       
-        </Box>                      
+            }           
+        </Box> 
     );
 };
  
