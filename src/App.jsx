@@ -18,19 +18,18 @@ const App = () => {
     const [sceneItems, setSceneItems] = useState();
     const [gameState, setGameState] = useState('stroll'); 
     const [thisQuestion, setThisQuestion] = useState(null);
-     
-    const childRef = useRef(null);
-    const trainSpeedRef = useRef(1);
-     
-    const pivotDistanceToSign = 6; 
+       
+    const trainSpeedRef = useRef(1); // train speed 
+    const distanceRef = useRef(0); // distance travelled  
+    const finalSignAt = useRef(); // distance where the animation ends and prompts for user input 
+    const canvasRef = useRef(null); // canvas dimensions for layout 
+    const childRef = useRef(null); // need to call a child method for the sole purpose of...
+    // rerendering the throttle lever without rerendering the whole scene when the train speed changes
+
+    const pivotDistanceToSign = 6;
     const distanceToFirstSign = 10;
     const signSpacing = 5; 
 
-    const distanceRef = useRef(0); // distance travelled  
-    const finalSignAt = useRef(); // distance where the animation ends and prompts for user input
-    
-    const canvasRef = useRef(null);
- 
     const cloudFunctionURL = 'https://europe-north1-koira-363317.cloudfunctions.net/knowledgeExpressRequest'
  
     const { questionAnswerData, loaded, error } = fetchQandA(cloudFunctionURL, thisQuestion); // fetch real data from the API
@@ -38,18 +37,15 @@ const App = () => {
    
     if (loaded && gameState === 'questionSelected') {
         setGameState('showAnswerSign')
-        //const newSceneItems = {};
         const positionID = 40 + distanceRef.current
         const newSceneItems = composeAnswerSign(positionID, questionAnswerData['answer'])
         setSceneItems(newSceneItems)
     }
 
-    const handleAskQuestionRequest = (whichSign) => {
-      
+    const handleAskQuestionRequest = (whichSign) => {    
         setThisQuestion(sceneItems[whichSign]['signText']) // this triggers API request from a custom hook
         setGameState('questionSelected'); 
         const keySignDistance = parseInt(whichSign)
-        //reduce the signs to the selected question
         const onlySelectedQuestionSign = { [whichSign]: sceneItems[keySignDistance] };     
         const newSceneItems = addWaitmessages(onlySelectedQuestionSign)
         setSceneItems(newSceneItems)

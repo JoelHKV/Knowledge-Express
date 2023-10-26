@@ -3,8 +3,8 @@
     left: 50%;
     transform: translateX(-50%);
     top: 31%;
-    width: clamp(330px, 60%, 450px);
-    height: 60%;
+    width: clamp(270px, 60%, 450px);
+    height: 40%;
     display: flex;
     flex-direction: column;
     z-index: 2;

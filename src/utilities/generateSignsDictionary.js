@@ -83,7 +83,6 @@ const addWhatToDict = (signType, textContent, canvasRef) => {
     if (canvasRef) {
         maxWidth = canvasRef.current.offsetWidth/225-0.6
     }
-    console.log(maxWidth)
     if (signType === 'OwnQuestion') {
         return {
             ownQuestionSign: true,

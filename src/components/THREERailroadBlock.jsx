@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useFrame  } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
-import { Stars } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import THREEMilestoneBlock from './THREEMilestoneBlock';
+
 
 const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
   
@@ -34,11 +34,10 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
     const getMilestoneWidth = () => {
         let milestoneWidth = 5;
         if (canvasRef) {
-            milestoneWidth = 0.5 + 1.5 * canvasRef.current.offsetWidth / 250
+            milestoneWidth = 1 + 1.5 * canvasRef.current.offsetWidth / 250
         }
         return milestoneWidth
     }
-
 
     const RailRoadAnimation = () => {
         useFrame(() => {
@@ -52,7 +51,7 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
                         item.z += 50;
                         item.x = milestoneWidth
                     }
-                    return item; // You need to return a value from the map function even if you don't use it
+                    return item;
                      
                 });
                 setDecorItems([...updatedDecorItems]);
@@ -62,15 +61,9 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
         });
     }
 
-
-
     return (
         <>                               
-            <group ref={meshRef}  >  
-                
-           
-
-
+            <group ref={meshRef}  >                      
                 <mesh position={[0, -0.05, 40]} rotation={[0, 0, 0]}>
                     <boxGeometry args={[140, 0.1, 80]} />   
                     <meshStandardMaterial color="#D2B48C" />
@@ -90,48 +83,9 @@ const THREERailroadBlock = ({ distanceRef, canvasRef }) => {
                 ))}                          
                 <RailRoadAnimation />       
             </group>
-
-
             {decorItems && decorItems.length > 0 && decorItems.map((item) => (                    
-                <mesh
-                    key={item.key}
-                    position={[item.x, item.y, item.z]}
-                    rotation={[0, 0, 0]}
-                >
-                    <boxGeometry args={[1, 2, 1]} />
-                    <meshStandardMaterial color="black" />
-
-                    <Text
-                        color="white"
-                        anchorX="center"
-                        anchorY="middle"
-                        position={[-0.1, 0.4, -0.55]}
-                        rotation={[Math.PI, 0, Math.PI]}
-                        maxWidth={1}
-                        fontSize={0.4}
-                    >
-                        {Math.round(item.z / 50)}
-                    </Text>
-                    <Text
-                        color="white"
-                        anchorX="center"
-                        anchorY="middle"
-                        position={[-0.1, 0, -0.55]}
-                        rotation={[Math.PI, 0, Math.PI]}
-                        maxWidth={1}
-                        fontSize={0.4}
-                    >
-                        {'km'}
-                    </Text>
-
-                </mesh>     
-
-
-
-            ))}
-
-           
-                        
+                <THREEMilestoneBlock key={item.key} item={item} />
+            ))}                               
         </>
     );
 };
